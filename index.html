@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script type="text/javascript" src="/___vscode_livepreview_injected_script"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Dataprise – Guided Checklist & Shared Questionnaire v2.1 – FIXED</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    :root {
+      --primary-color: #2c3e50; /* Dark Blue-Gray */
+      --secondary-color: #3498db; /* Bright Blue */
+      --accent-color: #e74c3c; /* Red */
+      --light-color: #ecf0f1; /* Light Gray */
+      --success-color: #2ecc71; /* Green */
+      --warning-color: #f39c12; /* Orange */
+
+      /* Section Background Colors */
+      --section-bg-1: #e8f6f3; /* Light Mint */
+      --section-bg-2: #eaf2f8; /* Light Blue */
+      --section-bg-3: #fef5e7; /* Light Peach */
+      --section-bg-4: #f4ecf7; /* Light Lavender */
+      --section-bg-5: #fdebd0; /* Light Yellow */
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6; /* Improved readability */
+    }
+
+    .container-card {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 30px 40px; /* Slightly more padding */
+      background: #fff;
+      border-radius: 12px; /* Softer corners */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.09);
+    }
+
+    h1, h2, h3 {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    h1 {
+        font-size: 1.85rem; /* Slightly larger */
+        margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      margin-top: 30px;
+      border-bottom: 2px solid var(--light-color);
+      padding-bottom: 10px;
+      margin-bottom: 1.5rem; /* More space below h2 */
+    }
+
+    h3 {
+        font-size: 1.2rem; /* Slightly larger h3 */
+        margin-bottom: 1rem;
+    }
+
+    .step-badge {
+      background: var(--secondary-color);
+      color:#fff;
+      border-radius:50%;
+      width:30px; /* Slightly larger badge */
+      height:30px;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+      font-size:0.95rem;
+      margin-right:10px;
+      font-weight: bold;
+    }
+
+    /* Required field label styling */
+    .form-label.required::after {
+        content: " *";
+        color: var(--accent-color);
+        font-weight: bold;
+        /* Removed aria-hidden as aria-required="true" is now used */
+    }
+
+    /* Form group spacing */
+    .form-label {
+        margin-bottom: 0.4rem;
+        font-weight: 500;
+        display: block; /* Ensure label is block for spacing */
+    }
+    .row > .col, .row > [class*="col-"] {
+        margin-bottom: 1rem; /* Consistent space below columns */
+    }
+
+    /* Grouped checkboxes/radios */
+    fieldset {
+        border: none; /* Remove default fieldset border */
+        padding: 0;
+        margin: 0 0 0.5rem 0; /* Add margin below fieldset */
+    }
+    legend {
+        font-weight: 500;
+        display: block;
+        margin-bottom: 0.6rem;
+        padding: 0; /* Reset padding */
+        float: none; /* Override Bootstrap reset */
+        width: auto; /* Override Bootstrap reset */
+        font-size: 1em; /* Match label size */
+    }
+    .checkbox-group .form-check,
+    .radio-group .form-check {
+        margin-bottom: 0.4rem;
+        padding-left: 1.8em; /* Ensure consistent alignment */
+    }
+    .form-check-inline {
+         margin-right: 1rem; /* More space between inline items */
+    }
+
+
+    /* Hideable 'Other' text inputs */
+    .other-input {
+        margin-top: 0.6rem; /* More space above 'Other' input */
+    }
+
+    /* Smaller text for notes/examples */
+    .field-note {
+        font-size: 0.88em;
+        color: #6c757d;
+        margin-top: 0.2rem;
+    }
+
+    /* Utility classes */
+    .hidden { display:none!important; }
+
+    /* Accessibility: visually hidden */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Feedback styling */
+    #saveStatus {
+        font-size: 0.85em;
+        color: var(--success-color);
+        padding: 5px 0;
+        min-height: 20px; /* Prevent layout shift */
+        display: block; /* Ensure it takes space */
+    }
+    #submissionStatus {
+        margin-top: 1rem;
+    }
+    .spinner-border-sm {
+        vertical-align: text-bottom;
+    }
+
+    /* Styling for error summary */
+     #formErrorSummary {
+         margin-bottom: 1.5rem;
+     }
+     #formErrorSummary ul {
+         padding-left: 1.2rem;
+         margin-bottom: 0;
+     }
+      #formErrorSummary li a {
+          color: var(--accent-color);
+          text-decoration: underline;
+          font-weight: bold;
+      }
+
+    /* Adjustments for Bootstrap validation */
+    .form-control.is-invalid, .form-select.is-invalid {
+      border-color: var(--accent-color);
+    }
+    .invalid-feedback {
+      display: none; /* Hidden by default, shown by JS/Bootstrap */
+      color: var(--accent-color);
+      font-size: 0.85em;
+    }
+    .was-validated :invalid ~ .invalid-feedback,
+    .was-validated :invalid ~ .invalid-tooltip, /* For tooltips if used */
+    .is-invalid ~ .invalid-feedback,
+    .is-invalid ~ .invalid-tooltip {
+      display: block; /* Bootstrap's default show mechanism */
+    }
+
+    /* Stepper Styles */
+    .stepper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--light-color);
+        list-style: none;
+        padding-left: 0;
+    }
+    .stepper-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        flex: 1;
+        position: relative;
+    }
+    .stepper-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 15px; /* Vertically align with center of circle */
+        left: 50%;
+        height: 2px;
+        width: calc(100% - 40px); /* Adjust width to connect circles */
+        background-color: var(--light-color);
+        z-index: 1;
+        transform: translateX(20px); /* Start after the circle */
+    }
+    .stepper-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: var(--light-color);
+        color: var(--primary-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        border: 2px solid var(--light-color);
+        z-index: 2;
+        position: relative; /* Ensure circle is above the line */
+    }
+    .stepper-title {
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    .stepper-item.active .stepper-circle {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: #fff;
+    }
+    .stepper-item.active .stepper-title {
+        font-weight: bold;
+    }
+     .stepper-item.completed .stepper-circle {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+        color: #fff;
+    }
+    .stepper-item.completed:not(:last-child)::after {
+        background-color: var(--success-color);
+    }
+
+    /* Service Section Backgrounds */
+    .service-section {
+        padding: 20px; /* Add padding to sections */
+        margin-bottom: 1.5rem; /* Space between sections */
+        border-radius: 8px; /* Slightly rounded corners */
+        border: 1px solid var(--light-color);
+    }
+    .section-bg-1 { background-color: var(--section-bg-1); border-left: 5px solid #1abc9c; }
+    .section-bg-2 { background-color: var(--section-bg-2); border-left: 5px solid #3498db; }
+    .section-bg-3 { background-color: var(--section-bg-3); border-left: 5px solid #f39c12; }
+    .section-bg-4 { background-color: var(--section-bg-4); border-left: 5px solid #9b59b6; }
+    .section-bg-5 { background-color: var(--section-bg-5); border-left: 5px solid #f1c40f; }
+  </style>
+</head>
+<body>
+  <div class="container-card">
+    <h1 class="text-center">Dataprise – Guided Checklist & Shared Questionnaire</h1>
+
+    <!-- Stepper -->
+    <ul class="stepper" id="stepper">
+      <li class="stepper-item active" data-step="1">
+        <div class="stepper-circle">1</div>
+        <div class="stepper-title">Service Checklist</div>
+      </li>
+      <li class="stepper-item" data-step="2">
+        <div class="stepper-circle">2</div>
+        <div class="stepper-title">Details</div>
+      </li>
+      <li class="stepper-item" data-step="3">
+        <div class="stepper-circle">3</div>
+        <div class="stepper-title">Summary</div>
+      </li>
+    </ul>
+
+    <section id="step1">
+      <h2><span class="step-badge">1</span>Service Checklist (For Rep Use)</h2>
+      <p class="text-muted">Select the services discussed with the customer. Then, either generate a link to send to the customer for them to complete the technical details, or continue to fill them out yourself.</p>
+
+      <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+        <div class="col">
+          <div class="form-check fs-5"> <input class="form-check-input" type="checkbox" id="svcManagedIT" value="Fully Managed IT" />
+            <label class="form-check-label" for="svcManagedIT">Fully Managed IT</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcServiceDesk" value="Service Desk" />
+            <label class="form-check-label" for="svcServiceDesk">Service Desk</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcInfrastructure" value="Infrastructure" />
+            <label class="form-check-label" for="svcInfrastructure">Infrastructure</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcCyber" value="Cybersecurity" />
+            <label class="form-check-label" for="svcCyber">Cybersecurity</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcBackup" value="Backup & DR" />
+            <label class="form-check-label" for="svcBackup">Backup & DR</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcPCDepot" value="PC Depot" />
+            <label class="form-check-label" for="svcPCDepot">PC Depot</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcCloud" value="Microsoft Cloud Services" />
+            <label class="form-check-label" for="svcCloud">Microsoft Cloud Services</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcOther" value="Other" />
+            <label class="form-check-label" for="svcOther">Other (Specify Below)</label>
+          </div>
+          <input type="text" id="svcOtherText" class="form-control form-control-sm mt-2 hidden" placeholder="Describe other required services" />
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" id="generateLinkBtn"><i class="bi bi-link-45deg me-1"></i>Generate Link for Customer</button>
+        <button class="btn btn-primary" id="gotoStep2"><i class="bi bi-pencil-square me-1"></i>Fill Out Technical Form Now</button>
+      </div>
+      <div id="linkOutput" class="alert alert-info mt-3 hidden"></div>
+      <div id="linkCopiedMsg" class="alert alert-success mt-3 hidden">Link copied to clipboard!</div>
+    </section>
+
+    <section id="step2" class="hidden mt-5">
+      <h2><span class="step-badge">2</span>Company & Technical Details</h2>
+      <p class="text-muted">Please provide the following details. Fields marked with <span class="text-danger fw-bold">*</span> are required. Your progress is saved automatically in this browser.</p>
+       <div id="formErrorSummary" class="alert alert-danger hidden" role="alert">
+          <strong>Please correct the following errors:</strong>
+          <ul id="errorList"></ul>
+        </div>
+      <span id="saveStatus" aria-live="polite"></span> <form id="detailsForm"
+            novalidate> <input type="hidden" name="_subject" value="New Dataprise Questionnaire Submission">
+           <input type="hidden" name="_captcha" value="false"> <textarea name="formattedSummary" id="formattedSummary" class="visually-hidden"></textarea>
+
+
+        <div class="border rounded p-3 mb-4 bg-light">
+            <h3 class="mt-0 mb-3">Company Information</h3>
+             <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label required" for="companyName">Company Name</label>
+                <input type="text" class="form-control" id="companyName" name="companyName" required aria-required="true" aria-describedby="companyNameError"/>
+                <div class="invalid-feedback" id="companyNameError">Please enter the company name.</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label required" for="industry">Industry</label>
+                <select class="form-select" id="industry" name="industry" required aria-required="true" aria-describedby="industryError industryOtherError">
+                    <option value="" selected disabled>Select Industry...</option>
+                    <option>Technology</option>
+                    <option>Healthcare</option>
+                    <option>Finance / Banking</option>
+                    <option>Legal</option>
+                    <option>Manufacturing</option>
+                    <option>Construction</option>
+                    <option>Education</option>
+                    <option>Non-Profit</option>
+                    <option>Government Contractor</option>
+                    <option>Retail</option>
+                    <option>Hospitality</option>
+                    <option value="Other">Other (Specify)</option>
+                </select>
+                 <div class="invalid-feedback" id="industryError">Please select an industry.</div>
+                 <input type="text" id="industryOther" name="industryOther" class="form-control other-input hidden" placeholder="Specify other industry" aria-describedby="industryOtherError"/>
+                 <div class="invalid-feedback" id="industryOtherError">Please specify the industry if 'Other' is selected.</div>
+              </div>
+               <div class="col-md-6">
+                  <label class="form-label" for="contactName">Primary Contact Name</label>
+                  <input type="text" class="form-control" id="contactName" name="contactName" />
+              </div>
+               <div class="col-md-6">
+                  <label class="form-label" for="contactEmail">Primary Contact Email</label>
+                  <input type="email" class="form-control" id="contactEmail" name="email" placeholder="name@example.com" aria-describedby="contactEmailError"/>
+                  <div class="invalid-feedback" id="contactEmailError">Please enter a valid email address.</div>
+                  </div>
+              <div class="col-md-6">
+                <label class="form-label" for="numLocations">Number of Locations</label>
+                <input type="number" class="form-control" id="numLocations" name="numLocations" min="1" placeholder="e.g., 3" aria-describedby="numLocationsError"/>
+                <div class="invalid-feedback" id="numLocationsError">Please enter a valid number (1 or more).</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="numUsers">Number of Users / Employees</label>
+                <input type="number" class="form-control" id="numUsers" name="numUsers" min="1" placeholder="e.g., 75" aria-describedby="numUsersError"/>
+                <div class="invalid-feedback" id="numUsersError">Please enter a valid number (1 or more).</div>
+              </div>
+            </div>
+        </div>
+
+
+        <div id="dynamicSections">
+            </div>
+
+        <div class="border rounded p-3 mb-4 mt-4">
+            <h3 class="mt-0 mb-3">Helpful Supporting Documents (Optional)</h3>
+            <p class="text-muted small"><strong>Note:</strong> This form only collects filenames due to web limitations. Max. 20MB each. Your Dataprise contact will follow up to arrange secure transfer of the actual files separately.</p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="file_serverList">Server / Asset List (.csv, .xlsx)</label>
+                <input type="file" class="form-control" id="file_serverList" name="file_serverList" accept=".csv,.xlsx,.xls" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_networkConfig">Network / Firewall Config Export</label>
+                <input type="file" class="form-control" id="file_networkConfig" name="file_networkConfig" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_diagram">Architecture Diagram (.png, .pdf, .vsdx)</label>
+                <input type="file" class="form-control" id="file_diagram" name="file_diagram" accept=".png,.pdf,.vsdx,.jpg,.jpeg" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_azureExport">Azure Cost Export (.csv, .json)</label>
+                <input type="file" class="form-control" id="file_azureExport" name="file_azureExport" accept=".csv,.json" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_m365Export">Microsoft 365 Service Report (.csv)</label>
+                <input type="file" class="form-control" id="file_m365Export" name="file_m365Export" accept=".csv" />
+              </div>
+               <div class="col-md-6">
+                <label class="form-label" for="file_other">Other Relevant Document</label>
+                <input type="file" class="form-control" id="file_other" name="file_other" />
+              </div>
+            </div>
+        </div>
+
+        <div id="submissionStatus"></div> <!-- For AJAX status messages -->
+
+        <div class="mt-4 d-flex flex-wrap gap-3 align-items-center">
+          <!-- Back Button -->
+          <button class="btn btn-secondary" type="button" id="backToStep1"><i class="bi bi-arrow-left me-1"></i>Back to Service Selection</button>
+
+          <!-- Proceed Button (was Submit) -->
+          <button class="btn btn-success btn-lg" type="submit" id="submitBtn">
+              <span class="spinner-border spinner-border-sm hidden me-1" role="status" aria-hidden="true"></span>
+              <i class="bi bi-arrow-right me-1"></i> <!-- Changed icon -->
+              Proceed to Summary <!-- Changed text -->
+          </button>
+
+          <!-- Clear Draft Button -->
+          <button class="btn btn-sm btn-outline-danger" type="button" id="clearDraftBtn" title="Clear locally saved draft"><i class="bi bi-trash me-1"></i>Clear Draft</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="step3" class="hidden mt-5">
+      <h2><span class="step-badge">3</span>Summary & Download</h2>
+       <p class="text-muted">Thank you! Your details have been submitted. Here is a summary for your records. You can download a copy below.</p>
+      <div id="summaryOutput" class="bg-light p-3 rounded border mb-3" style="white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; max-height: 500px; overflow-y: auto;"></div>
+      <div class="mt-3 d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" id="dlText"><i class="bi bi-download me-1"></i>Download Summary (.txt)</button>
+        <button class="btn btn-outline-danger" id="dlPdf"><i class="bi bi-file-earmark-pdf me-1"></i>Download Summary (PDF)</button>
+      </div>
+       <div class="mt-4">
+           <button class="btn btn-secondary" type="button" id="startOverBtn"><i class="bi bi-arrow-clockwise me-1"></i>Start New Questionnaire</button>
+       </div>
+    </section>
+  </div>
+
+<script>
+  // Wrap all script logic in DOMContentLoaded to ensure DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+
+      // ---------- Constants and Globals ----------
+      const FORM_STORAGE_KEY = 'datapriseFormData';
+      const SAVE_DEBOUNCE_MS = 1500; // Save 1.5 seconds after last input
+
+      const qs = new URLSearchParams(window.location.search);
+      const selectedParam = qs.get('selected');
+      const otherTextParam = qs.get('otherText');
+
+      const step1Section = document.getElementById('step1');
+      const step2Section = document.getElementById('step2');
+      const step3Section = document.getElementById('step3');
+      const detailsForm = document.getElementById('detailsForm');
+      const dynamicSectionsWrapper = document.getElementById('dynamicSections');
+      const summaryOutputDiv = document.getElementById('summaryOutput');
+      const formErrorSummaryDiv = document.getElementById('formErrorSummary');
+      const errorListUl = document.getElementById('errorList');
+
+      const otherCheckbox = document.getElementById('svcOther');
+      const otherTextInput = document.getElementById('svcOtherText');
+      const generateLinkBtn = document.getElementById('generateLinkBtn');
+      const gotoStep2Btn = document.getElementById('gotoStep2');
+      const linkOutputDiv = document.getElementById('linkOutput');
+      const linkCopiedMsgDiv = document.getElementById('linkCopiedMsg');
+      const backToStep1Btn = document.getElementById('backToStep1');
+      const submitBtn = document.getElementById('submitBtn');
+      const submitSpinner = submitBtn.querySelector('.spinner-border');
+      const submissionStatusDiv = document.getElementById('submissionStatus');
+      const saveStatusSpan = document.getElementById('saveStatus');
+      const clearDraftBtn = document.getElementById('clearDraftBtn');
+      const dlTextBtn = document.getElementById('dlText');
+      const dlPdfBtn = document.getElementById('dlPdf');
+      const startOverBtn = document.getElementById('startOverBtn');
+      const stepper = document.getElementById('stepper'); // Get the stepper UL
+
+      let saveTimeout; // For debouncing localStorage save
+      let currentSummaryText = ''; // Store summary for download
+
+      // ---------- Utilities ----------
+
+      // Debounce function
+      function debounce(func, wait) {
+          let timeout;
+          return function executedFunction(...args) {
+              const later = () => {
+                  clearTimeout(timeout);
+                  func(...args);
+              };
+              clearTimeout(timeout);
+              timeout = setTimeout(later, wait);
+          };
+      }
+
+      // Helper to get selected service values
+      function getSelectedServices() {
+          const boxes = step1Section.querySelectorAll('input[type="checkbox"]');
+          const selected = [];
+          boxes.forEach(cb => {
+              if (cb.checked) {
+                  if (cb.value === 'Other') {
+                      const otherText = otherTextInput.value.trim();
+                      selected.push(otherText ? `Other: ${otherText}` : 'Other');
+                  } else {
+                      selected.push(cb.value);
+                  }
+              }
+          });
+          return selected;
+      }
+
+      // Helper to show temporary message
+      function showTemporaryMessage(elementId, message, duration = 2000, isError = false) {
+          const el = document.getElementById(elementId);
+          if (!el) return;
+          el.textContent = message;
+          el.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3'; // Reset classes
+          el.classList.remove('hidden');
+          setTimeout(() => {
+              el.classList.add('hidden');
+          }, duration);
+      }
+
+       // Helper to toggle visibility/required state of 'Other' text input for select/radio
+      function toggleOtherInput(sourceElement, otherInputId, triggerValue = 'Other') {
+          const otherInput = document.getElementById(otherInputId);
+          if (!otherInput) return;
+          const isTriggered = sourceElement.value === triggerValue;
+          otherInput.classList.toggle('hidden', !isTriggered);
+          otherInput.required = isTriggered;
+          otherInput.disabled = !isTriggered; // Disable when hidden
+          otherInput.setAttribute('aria-hidden', !isTriggered); // Accessibility
+           if (isTriggered) {
+                otherInput.focus();
+           } else {
+               otherInput.value = ''; // Clear value if hidden
+               // Manually remove validation state if it was previously invalid
+               otherInput.classList.remove('is-invalid');
+               const errorFeedback = document.getElementById(otherInput.getAttribute('aria-describedby'));
+                if(errorFeedback) errorFeedback.textContent = ''; // Clear error message
+           }
+      }
+
+      // Helper to handle checkbox groups triggering an 'Other' input
+      function toggleOtherInputCheckbox(checkboxElement, otherInputId) {
+          const otherInput = document.getElementById(otherInputId);
+          if (!otherInput) return;
+          const isChecked = checkboxElement.checked;
+          otherInput.classList.toggle('hidden', !isChecked);
+          otherInput.required = isChecked;
+          otherInput.disabled = !isChecked;
+          otherInput.setAttribute('aria-hidden', !isChecked);
+          if (isChecked) {
+              otherInput.focus();
+          } else {
+              otherInput.value = '';
+               otherInput.classList.remove('is-invalid');
+               const errorFeedback = document.getElementById(otherInput.getAttribute('aria-describedby'));
+                if(errorFeedback) errorFeedback.textContent = '';
+          }
+      }
+
+      // Generate a safe filename prefix
+      function getSafeFilenamePrefix() {
+          const companyName = document.querySelector('input[name="companyName"]')?.value || 'Dataprise';
+          return companyName.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'dataprise';
+      }
+
+      // Function to update the stepper visual state
+      function updateStepper(currentStep) {
+          if (!stepper) return;
+          const items = stepper.querySelectorAll('.stepper-item');
+          items.forEach(item => {
+              const step = parseInt(item.getAttribute('data-step'), 10);
+              item.classList.remove('active', 'completed');
+              if (step < currentStep) {
+                  item.classList.add('completed');
+              } else if (step === currentStep) {
+                  item.classList.add('active');
+              }
+          });
+      }
+
+      // ---------- Step 1 Behaviour (Rep) ----------
+      if (otherCheckbox) {
+          otherCheckbox.addEventListener('change', e => {
+              const isChecked = e.target.checked;
+              otherTextInput.classList.toggle('hidden', !isChecked);
+              otherTextInput.disabled = !isChecked; // Also disable when hidden
+              if (!isChecked) {
+                  otherTextInput.value = '';
+              } else {
+                  otherTextInput.focus();
+              }
+          });
+      }
+
+      if (generateLinkBtn) {
+          generateLinkBtn.addEventListener('click', () => {
+              const sel = getSelectedServices();
+              if (!sel.length) {
+                  alert('Please select at least one service first.');
+                  return;
+              }
+              if (otherCheckbox.checked && !otherTextInput.value.trim()) {
+                  alert('Please describe the "Other" service or uncheck it.');
+                  return;
+              }
+
+              const step1Section = document.getElementById('step1');
+              const otherText = otherTextInput.value.trim();
+
+              const urlParamValues = Array.from(step1Section.querySelectorAll('input[type="checkbox"]:checked'))
+                                        .map(cb => cb.value)
+                                        .join(',');
+              const otherTextValue = otherTextInput.value.trim();
+              const otherParam = (otherCheckbox.checked && otherTextValue) ? `&otherText=${encodeURIComponent(otherTextValue)}` : '';
+              const url = `${window.location.origin}${window.location.pathname}?selected=${encodeURIComponent(urlParamValues)}${otherParam}#step2`;
+
+              linkOutputDiv.classList.remove('hidden');
+              linkOutputDiv.innerHTML = `<strong>Link for Customer:</strong><br><a href="${url}" target="_blank" style="word-break: break-all;">${url}</a><br><small>(Link copied to clipboard)</small>`;
+
+              navigator.clipboard.writeText(url)
+                  .then(() => showTemporaryMessage('linkCopiedMsg', 'Link copied to clipboard!', 2500))
+                  .catch(err => console.error('Failed to copy link: ', err));
+          });
+      }
+
+      if (gotoStep2Btn) {
+          gotoStep2Btn.addEventListener('click', () => {
+              console.log('gotoStep2Btn clicked.'); // Log: Start
+              const sel = getSelectedServices(); // Get selected checkboxes
+              console.log(`getSelectedServices returned ${sel.length} items.`); // Log: Services count
+              if (!sel.length) {
+                  alert('Please select at least one service first.');
+                  return; // Stop if nothing selected
+              }
+
+              const selectedServices = sel.map(chk => ({ id: chk.id, value: chk.value, label: chk.dataset?.label || chk.value })); // Use optional chaining
+              const otherText = otherTextInput.value.trim();
+
+              // --- Restore/Build Step 2 ---
+              console.log('Calling buildDynamicSections()...'); // Log: Before build
+              buildDynamicSections(); // Build based on current selections
+              console.log('buildDynamicSections() completed.'); // Log: After build
+
+              // --- Go to Step 2 ---
+              console.log('Hiding step 1, showing step 2...'); // Log: Before visibility change
+              step1Section.classList.add('hidden');
+              step2Section.classList.remove('hidden');
+              backToStep1Btn.classList.remove('hidden'); // Show the back button
+              console.log('Calling updateStepper(2)...'); // Log: Before stepper update
+              updateStepper(2); // Update stepper to show step 2 active
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              console.log('Transition to step 2 complete.'); // Log: End
+          });
+      }
+
+      if (backToStep1Btn) {
+          backToStep1Btn.addEventListener('click', () => {
+              step2Section.classList.add('hidden');
+              step1Section.classList.remove('hidden');
+              linkOutputDiv.classList.add('hidden');
+              linkCopiedMsgDiv.classList.add('hidden');
+              updateStepper(1); // Update stepper to show step 1 active
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+      }
+
+      // ---------- Pre-population & Auto-Proceed (Customer View) ----------
+      if (selectedParam) {
+          const selValues = selectedParam.split(',');
+          step1Section.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+              const isSelected = selValues.includes(cb.value);
+              cb.checked = isSelected;
+              cb.disabled = true; // Disable all checkboxes in customer view
+              if (cb.value === 'Other' && isSelected) {
+                  otherTextInput.classList.remove('hidden');
+                  otherTextInput.value = otherTextParam || '';
+                  otherTextInput.readOnly = true;
+              }
+              // Optional: Visually dim non-selected services
+              // if (!isSelected) cb.closest('.col').style.opacity = '0.5';
+          });
+
+          // Hide/Modify Step 1 elements for customer
+          if(generateLinkBtn) generateLinkBtn.classList.add('hidden');
+          if(gotoStep2Btn) gotoStep2Btn.classList.add('hidden');
+          const step1Header = step1Section.querySelector('h2');
+          if (step1Header) step1Header.innerHTML = '<span class="step-badge">1</span>Services Selected by Dataprise';
+          const step1Para = step1Section.querySelector('p');
+          if (step1Para) step1Para.textContent = 'Please proceed by filling out the technical details below for the services selected by your Dataprise representative.';
+
+          // Build dynamic form, restore progress, and show Step 2
+          buildDynamicSections();
+          restoreFormProgress(); // Restore data *after* building sections
+
+          step1Section.style.opacity = "0.7"; // Dim slightly
+          step1Section.style.pointerEvents = "none"; // Prevent interaction
+          step2Section.classList.remove('hidden');
+          if(backToStep1Btn) backToStep1Btn.classList.add('hidden'); // Hide back button for customer
+
+          // Scroll to Step 2
+          const step2Element = document.getElementById('step2');
+          if (step2Element) {
+              const topPos = step2Element.getBoundingClientRect().top + window.pageYOffset - 20;
+              window.scrollTo({ top: topPos, behavior: 'smooth' });
+          }
+
+      } else {
+          // Rep view starting fresh
+          if(backToStep1Btn) backToStep1Btn.classList.add('hidden');
+           restoreFormProgress(); // Restore draft if rep is returning
+      }
+
+       // ---------- Start Over Button (Step 3) ----------
+       if (startOverBtn) {
+            startOverBtn.addEventListener('click', () => {
+                // Clear saved data
+                localStorage.removeItem(FORM_STORAGE_KEY);
+                // Reset URL (remove query params and hash)
+                window.location.href = window.location.origin + window.location.pathname;
+                // Could also manually reset form fields and visibility, but reload is cleaner
+            });
+        }
+
+      // ---------- Restore Form Progress from localStorage ----------
+      function restoreFormProgress() {
+          console.log('Attempting to restore form progress...');
+          const savedDataJSON = localStorage.getItem(FORM_STORAGE_KEY);
+          if (!savedDataJSON) {
+              console.log('No saved form data found.');
+              if(saveStatusSpan) saveStatusSpan.textContent = 'No saved draft.';
+              return;
+          }
+
+          let savedData;
+          try {
+              savedData = JSON.parse(savedDataJSON);
+              console.log('Saved data found and parsed:', savedData);
+          } catch (e) {
+              console.error('Error parsing saved form data:', e);
+              localStorage.removeItem(FORM_STORAGE_KEY); // Clear corrupted data
+              if(saveStatusSpan) saveStatusSpan.textContent = 'Error loading draft.';
+              return;
+          }
+
+          // Use detailsForm as the context to find elements
+          const form = document.getElementById('detailsForm'); 
+          if (!form) {
+              console.error('Details form not found for restoring progress.');
+              return;
+          }
+
+          // Iterate through saved data and populate form
+          for (const name in savedData) {
+              // Make sure it's a property of the object itself, not from the prototype chain
+              if (Object.hasOwnProperty.call(savedData, name)) { 
+                  const elements = form.querySelectorAll(`[name="${name}"]`);
+                  if (!elements || elements.length === 0) {
+                      console.warn(`No form element found for saved field: ${name}`);
+                      continue;
+                  }
+
+                  const value = savedData[name];
+                  
+                  // Handle different input types
+                  elements.forEach(element => {
+                      const type = element.type ? element.type.toLowerCase() : element.tagName.toLowerCase();
+
+                      if (type === 'checkbox') {
+                          // For checkbox groups, check if the element's value is in the saved array
+                          if (Array.isArray(value)) {
+                              element.checked = value.includes(element.value);
+                          } else {
+                              // For single checkboxes (like 'Other' toggles), check against boolean/string
+                              element.checked = (value === true || value === 'true' || value === element.value);
+                          }
+                          // Special handling for 'Other' checkboxes that show text fields
+                          if (element.id.endsWith('OtherCheck') && element.checked) {
+                              const textInputId = element.id.replace('OtherCheck', 'OtherText');
+                              const textInput = document.getElementById(textInputId);
+                              if (textInput) textInput.classList.remove('hidden');
+                          } else if (element.id.endsWith('OtherCheck') && !element.checked) { // Hide if unchecked
+                              const textInputId = element.id.replace('OtherCheck', 'OtherText');
+                              const textInput = document.getElementById(textInputId);
+                              if (textInput) textInput.classList.add('hidden');
+                          }
+                          
+                      } else if (type === 'radio') {
+                          element.checked = (element.value === value);
+                          // Add 'Other' handling if needed for radios
+
+                      } else if (type === 'select-one') {
+                          element.value = value; 
+                          // Handle 'Other' option visibility for selects
+                          const otherInputId = element.id + 'Other'; // e.g., industryOther
+                          const otherInput = document.getElementById(otherInputId);
+                          if (otherInput) {
+                              if (element.value === 'Other') {
+                                  otherInput.classList.remove('hidden');
+                              } else {
+                                  otherInput.classList.add('hidden');
+                              }
+                          }
+
+                      } else if (type !== 'file') { // Don't restore file inputs
+                          element.value = value;
+                      }
+                      // Trigger change event for selects/inputs that might have dependent logic
+                      if (type === 'select-one' || type === 'checkbox' || type === 'radio') {
+                         // Trigger change only AFTER setting the value/checked state
+                         element.dispatchEvent(new Event('change', { bubbles: true }));
+                      } else if (type === 'text' || type === 'number' || type === 'email' || type === 'textarea') {
+                         // Trigger input for fields where typing normally triggers events
+                         element.dispatchEvent(new Event('input', { bubbles: true }));
+                      }
+                  });
+              }
+          }
+          if(saveStatusSpan) saveStatusSpan.textContent = 'Draft restored.';
+          console.log('Form progress restored successfully.');
+      }
+      // ---------- Dynamic Detailed Sections for Step 2 ----------
+      function buildDynamicSections() {
+          dynamicSectionsWrapper.innerHTML = ''; // Clear previous
+          const currentSelections = getSelectedServices();
+
+          // Templates using fieldset/legend for accessibility, aria-describedby for errors
+          const templates = {
+              'Fully Managed IT': () => `
+                  <div class="border rounded p-3 mb-4 service-section">
+                    <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-display me-2"></i>Fully Managed IT Details</h3>
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label" for="fmWorkstations">Approx. # Workstations</label>
+                        <input type="number" class="form-control" id="fmWorkstations" name="fmWorkstations" min="0" placeholder="e.g., 50" aria-describedby="fmWorkstationsError"/>
+                         <div class="invalid-feedback" id="fmWorkstationsError">Enter a valid number.</div>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label" for="fmServers">Approx. # Servers (Phys/Virt)</label>
+                        <input type="number" class="form-control" id="fmServers" name="fmServers" min="0" placeholder="e.g., 5" aria-describedby="fmServersError"/>
+                        <div class="invalid-feedback" id="fmServersError">Enter a valid number.</div>
+                      </div>
+                      <div class="col-md-4">
+                         <fieldset class="checkbox-group">
+                            <legend>Operating Systems Used</legend>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="Windows" id="fmOS_Windows" name="fmOS">
+                              <label class="form-check-label" for="fmOS_Windows">Windows</label>
+                            </div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="macOS" id="fmOS_macOS" name="fmOS">
+                              <label class="form-check-label" for="fmOS_macOS">macOS</label>
+                            </div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="Linux" id="fmOS_Linux" name="fmOS">
+                              <label class="form-check-label" for="fmOS_Linux">Linux</label>
+                            </div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" value="Other" id="fmOS_OtherCheck" name="fmOS_OtherCheck">
+                              <label class="form-check-label" for="fmOS_OtherCheck">Other</label>
+                            </div>
+                             <input type="text" id="fmOS_OtherText" name="fmOS_OtherText" class="form-control form-control-sm other-input hidden" placeholder="Specify other OS" aria-describedby="fmOS_OtherTextError" />
+                             <div class="invalid-feedback" id="fmOS_OtherTextError">Please specify the OS.</div>
+                        </fieldset>
+                      </div>
+                      <div class="col-12">
+                         <label class="form-label" for="fmApps">Key Business Applications</label>
+                         <textarea class="form-control" id="fmApps" name="fmApps" rows="2" placeholder="e.g., QuickBooks, Salesforce, Custom App X"></textarea>
+                         <div class="field-note">List major software critical to operations.</div>
+                      </div>
+                    </div>
+                  </div>`,
+
+              'Service Desk': () => `
+                  <div class="border rounded p-3 mb-4 service-section">
+                    <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-headset me-2"></i>Service Desk Details</h3>
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label class="form-label" for="sdTickets">Estimated Monthly Ticket Volume</label>
+                        <input type="number" class="form-control" id="sdTickets" name="sdTickets" min="0" placeholder="e.g., 150" aria-describedby="sdTicketsError"/>
+                         <div class="invalid-feedback" id="sdTicketsError">Enter a valid number.</div>
+                      </div>
+                       <div class="col-md-6">
+                        <label class="form-label" for="sdCoverage">Required Support Coverage</label>
+                         <select class="form-select" id="sdCoverage" name="sdCoverage" aria-describedby="sdCoverageError sdCoverageOtherError">
+                          <option value="" selected disabled>Select hours...</option>
+                          <option>Business Hours (e.g., 8x5 Mon-Fri)</option>
+                          <option>Extended Hours (e.g., 12x5 Mon-Fri)</option>
+                          <option>24x7x365</option>
+                          <option>Other (Specify)</option>
+                        </select>
+                        <div class="invalid-feedback" id="sdCoverageError">Select coverage hours.</div>
+                         <input type="text" id="sdCoverageOther" name="sdCoverageOther" class="form-control other-input hidden mt-2" placeholder="Specify coverage hours/days" aria-describedby="sdCoverageOtherError"/>
+                         <div class="invalid-feedback" id="sdCoverageOtherError">Please specify coverage.</div>
+                      </div>
+                       <div class="col-md-12">
+                          <fieldset class="checkbox-group">
+                              <legend>Current Support Methods (Check all that apply)</legend>
+                               <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="checkbox" id="sdMethodEmail" value="Email" name="sdCurrentMethods">
+                                  <label class="form-check-label" for="sdMethodEmail">Email</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="checkbox" id="sdMethodPhone" value="Phone" name="sdCurrentMethods">
+                                  <label class="form-check-label" for="sdMethodPhone">Phone</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="checkbox" id="sdMethodPortal" value="Portal/Web Form" name="sdCurrentMethods">
+                                  <label class="form-check-label" for="sdMethodPortal">Portal/Web Form</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="checkbox" id="sdMethodChat" value="Chat" name="sdCurrentMethods">
+                                  <label class="form-check-label" for="sdMethodChat">Chat</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="checkbox" id="sdMethodInPerson" value="In Person" name="sdCurrentMethods">
+                                  <label class="form-check-label" for="sdMethodInPerson">In Person</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                  <input class="form-check-input" type="checkbox" id="sdMethodOtherCheck" value="Other" name="sdMethodOtherCheck">
+                                  <label class="form-check-label" for="sdMethodOtherCheck">Other</label>
+                                </div>
+                                 <input type="text" id="sdMethodOtherText" name="sdMethodOtherText" class="form-control form-control-sm other-input hidden mt-2" placeholder="Specify other method" aria-describedby="sdMethodOtherTextError"/>
+                                 <div class="invalid-feedback" id="sdMethodOtherTextError">Please specify the method.</div>
+                          </fieldset>
+                      </div>
+                    </div>
+                  </div>`,
+
+                'Infrastructure': () => `
+                    <div class="border rounded p-3 mb-4 service-section">
+                      <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-hdd-network me-2"></i>Infrastructure Details</h3>
+                      <div class="row g-3">
+                         <div class="col-md-4">
+                          <label class="form-label" for="infraPhysServers">Approx. # Physical Servers</label>
+                          <input type="number" class="form-control" id="infraPhysServers" name="infraPhysServers" min="0" aria-describedby="infraPhysServersError"/>
+                          <div class="invalid-feedback" id="infraPhysServersError">Enter a valid number.</div>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label" for="infraVirtServers">Approx. # Virtual Servers</label>
+                          <input type="number" class="form-control" id="infraVirtServers" name="infraVirtServers" min="0" aria-describedby="infraVirtServersError"/>
+                          <div class="invalid-feedback" id="infraVirtServersError">Enter a valid number.</div>
+                        </div>
+                         <div class="col-md-4">
+                          <label class="form-label" for="infraHypervisor">Primary Hypervisor</label>
+                          <select class="form-select" id="infraHypervisor" name="infraHypervisor" aria-describedby="infraHypervisorError infraHypervisorOtherError">
+                              <option value="" selected disabled>Select...</option>
+                              <option>VMware ESXi / vSphere</option>
+                              <option>Microsoft Hyper-V</option>
+                              <option>Nutanix AHV</option>
+                              <option>Citrix Hypervisor (XenServer)</option>
+                              <option>Proxmox VE</option>
+                               <option>None / Bare Metal</option>
+                              <option value="Other">Other (Specify)</option>
+                          </select>
+                          <div class="invalid-feedback" id="infraHypervisorError">Select a hypervisor.</div>
+                           <input type="text" id="infraHypervisorOther" name="infraHypervisorOther" class="form-control other-input hidden mt-2" placeholder="Specify hypervisor" aria-describedby="infraHypervisorOtherError"/>
+                           <div class="invalid-feedback" id="infraHypervisorOtherError">Please specify hypervisor.</div>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label" for="infraFirewalls">Approx. # Firewalls</label>
+                          <input type="number" class="form-control" id="infraFirewalls" name="infraFirewalls" min="0" aria-describedby="infraFirewallsError"/>
+                           <div class="invalid-feedback" id="infraFirewallsError">Enter a valid number.</div>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label" for="infraSwitches">Approx. # Switches</label>
+                          <input type="number" class="form-control" id="infraSwitches" name="infraSwitches" min="0" aria-describedby="infraSwitchesError"/>
+                          <div class="invalid-feedback" id="infraSwitchesError">Enter a valid number.</div>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label" for="infraAPs">Approx. # Wireless APs</label>
+                          <input type="number" class="form-control" id="infraAPs" name="infraAPs" min="0" aria-describedby="infraAPsError"/>
+                           <div class="invalid-feedback" id="infraAPsError">Enter a valid number.</div>
+                        </div>
+                         <div class="col-md-12">
+                           <fieldset class="checkbox-group">
+                               <legend>Primary Network Equipment Vendors (Check all that apply)</legend>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="infraVendorCisco" value="Cisco/Meraki" name="infraVendors">
+                                    <label class="form-check-label" for="infraVendorCisco">Cisco/Meraki</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="infraVendorHPE" value="HPE/Aruba" name="infraVendors">
+                                    <label class="form-check-label" for="infraVendorHPE">HPE/Aruba</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="infraVendorDell" value="Dell" name="infraVendors">
+                                    <label class="form-check-label" for="infraVendorDell">Dell</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="infraVendorFortinet" value="Fortinet" name="infraVendors">
+                                    <label class="form-check-label" for="infraVendorFortinet">Fortinet</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="infraVendorPaloAlto" value="Palo Alto" name="infraVendors">
+                                    <label class="form-check-label" for="infraVendorPaloAlto">Palo Alto</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="infraVendorUbiquiti" value="Ubiquiti" name="infraVendors">
+                                    <label class="form-check-label" for="infraVendorUbiquiti">Ubiquiti</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="infraVendorOtherCheck" value="Other" name="infraVendorOtherCheck">
+                                    <label class="form-check-label" for="infraVendorOtherCheck">Other</label>
+                                </div>
+                                <input type="text" id="infraVendorOtherText" name="infraVendorOtherText" class="form-control form-control-sm other-input hidden mt-2" placeholder="Specify other vendor(s)" aria-describedby="infraVendorOtherTextError"/>
+                                <div class="invalid-feedback" id="infraVendorOtherTextError">Please specify vendor(s).</div>
+                            </fieldset>
+                        </div>
+                         <div class="col-12">
+                           <label class="form-label" for="infraNetworkNotes">Notes on Network Complexity / WAN Links</label>
+                           <textarea class="form-control" id="infraNetworkNotes" name="infraNetworkNotes" rows="2" placeholder="e.g., MPLS between 3 sites, SD-WAN pilot, specific VLAN setup"></textarea>
+                        </div>
+                      </div>
+                    </div>`,
+
+              'Cybersecurity': () => `
+                    <div class="border rounded p-3 mb-4 service-section">
+                      <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-shield-lock me-2"></i>Cybersecurity Details</h3>
+                      <div class="row g-3">
+                        <div class="col-md-4">
+                          <label class="form-label" for="secEndpoints">Approx. # Endpoints (Workstations+Servers)</label>
+                          <input type="number" class="form-control" id="secEndpoints" name="secEndpoints" min="0" placeholder="Total devices" aria-describedby="secEndpointsError"/>
+                           <div class="invalid-feedback" id="secEndpointsError">Enter a valid number.</div>
+                        </div>
+                        <div class="col-md-4">
+                          <label class="form-label" for="secCurrentEDR">Current Endpoint Security Tool</label>
+                          <select class="form-select" id="secCurrentEDR" name="secCurrentEDR" aria-describedby="secCurrentEDRError secCurrentEDROtherError">
+                              <option value="" selected disabled>Select tool...</option>
+                              <option>Microsoft Defender for Endpoint</option>
+                              <option>CrowdStrike Falcon</option>
+                              <option>SentinelOne</option>
+                              <option>Sophos Intercept X</option>
+                              <option>Trend Micro Apex One</option>
+                              <option>Webroot</option>
+                              <option>Bitdefender GravityZone</option>
+                              <option>None</option>
+                              <option value="Other">Other (Specify)</option>
+                          </select>
+                           <div class="invalid-feedback" id="secCurrentEDRError">Select a tool or 'None'.</div>
+                           <input type="text" id="secCurrentEDROther" name="secCurrentEDROther" class="form-control other-input hidden mt-2" placeholder="Specify EDR/AV tool" aria-describedby="secCurrentEDROtherError"/>
+                           <div class="invalid-feedback" id="secCurrentEDROtherError">Please specify the tool.</div>
+                        </div>
+                         <div class="col-md-4">
+                          <label class="form-label" for="secSIEMExists">SIEM / Log Management in place?</label>
+                           <select class="form-select" id="secSIEMExists" name="secSIEMExists" aria-describedby="secSIEMExistsError secSIEMToolError">
+                             <option value="" selected disabled>Select...</option>
+                             <option value="Yes">Yes (Specify Tool)</option>
+                             <option value="No">No</option>
+                             <option value="Unsure">Unsure</option>
+                           </select>
+                            <div class="invalid-feedback" id="secSIEMExistsError">Select an option.</div>
+                           <input type="text" id="secSIEMTool" name="secSIEMTool" class="form-control other-input hidden mt-2" placeholder="Specify SIEM tool (e.g., Splunk, Sentinel)" aria-describedby="secSIEMToolError"/>
+                            <div class="invalid-feedback" id="secSIEMToolError">Please specify the SIEM tool.</div>
+                        </div>
+                         <div class="col-md-6">
+                          <label class="form-label" for="secEmailSecurity">Email Security Solution</label>
+                           <select class="form-select" id="secEmailSecurity" name="secEmailSecurity" aria-describedby="secEmailSecurityError secEmailSecurityOtherError">
+                              <option value="" selected disabled>Select solution...</option>
+                              <option>Microsoft Defender for Office 365</option>
+                              <option>Proofpoint</option>
+                              <option>Mimecast</option>
+                              <option>Barracuda</option>
+                              <option>Sophos Email</option>
+                               <option>Google Workspace Security</option>
+                              <option>None / Basic Filtering</option>
+                              <option value="Other">Other (Specify)</option>
+                          </select>
+                           <div class="invalid-feedback" id="secEmailSecurityError">Select a solution or 'None'.</div>
+                           <input type="text" id="secEmailSecurityOther" name="secEmailSecurityOther" class="form-control other-input hidden mt-2" placeholder="Specify email security tool" aria-describedby="secEmailSecurityOtherError"/>
+                           <div class="invalid-feedback" id="secEmailSecurityOtherError">Please specify the tool.</div>
+                        </div>
+                         <div class="col-md-6">
+                            <fieldset class="checkbox-group">
+                                <legend>Compliance Requirements (Check all that apply)</legend>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="compHIPAA" value="HIPAA" name="secCompliance">
+                                    <label class="form-check-label" for="compHIPAA">HIPAA</label>
+                                  </div>
+                                  <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="compPCI" value="PCI-DSS" name="secCompliance">
+                                    <label class="form-check-label" for="compPCI">PCI-DSS</label>
+                                  </div>
+                                   <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="compCMMC" value="CMMC/NIST" name="secCompliance">
+                                    <label class="form-check-label" for="compCMMC">CMMC/NIST</label>
+                                  </div>
+                                   <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="compSOC2" value="SOC 2" name="secCompliance">
+                                    <label class="form-check-label" for="compSOC2">SOC 2</label>
+                                  </div>
+                                  <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="compGDPR" value="GDPR/CCPA" name="secCompliance">
+                                    <label class="form-check-label" for="compGDPR">GDPR/CCPA</label>
+                                  </div>
+                                   <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="compOtherCheck" value="Other" name="compOtherCheck">
+                                    <label class="form-check-label" for="compOtherCheck">Other</label>
+                                  </div>
+                                   <input type="text" id="compOtherText" name="secComplianceOther" class="form-control form-control-sm other-input hidden mt-2" placeholder="Specify other compliance" aria-describedby="compOtherTextError"/>
+                                   <div class="invalid-feedback" id="compOtherTextError">Please specify compliance.</div>
+                            </fieldset>
+                        </div>
+                      </div>
+                    </div>`,
+
+              'Backup & DR': () => `
+                    <div class="border rounded p-3 mb-4 service-section">
+                      <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-cloud-arrow-up me-2"></i>Backup & DR Details</h3>
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label" for="bdrTB">Total Data Size to Backup (TB)</label>
+                          <input type="number" class="form-control" id="bdrTB" name="bdrTB" step="0.1" min="0" placeholder="e.g., 2.5" aria-describedby="bdrTBError"/>
+                           <div class="invalid-feedback" id="bdrTBError">Enter a valid size in TB (e.g., 2.5).</div>
+                        </div>
+                         <div class="col-md-6">
+                          <label class="form-label" for="bdrCurrentSolution">Current Backup Solution</label>
+                          <select class="form-select" id="bdrCurrentSolution" name="bdrCurrentSolution" aria-describedby="bdrCurrentSolutionError bdrCurrentSolutionOtherError">
+                              <option value="" selected disabled>Select solution...</option>
+                              <option>Veeam</option>
+                              <option>Datto</option>
+                              <option>Commvault</option>
+                              <option>Rubrik</option>
+                              <option>Cohesity</option>
+                              <option>Azure Backup</option>
+                              <option>AWS Backup</option>
+                              <option>Acronis</option>
+                              <option>None / Manual</option>
+                              <option value="Other">Other (Specify)</option>
+                          </select>
+                          <div class="invalid-feedback" id="bdrCurrentSolutionError">Select a solution or 'None'.</div>
+                           <input type="text" id="bdrCurrentSolutionOther" name="bdrCurrentSolutionOther" class="form-control other-input hidden mt-2" placeholder="Specify backup tool" aria-describedby="bdrCurrentSolutionOtherError"/>
+                           <div class="invalid-feedback" id="bdrCurrentSolutionOtherError">Please specify the tool.</div>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label" for="bdrRTO">Required RTO (Recovery Time)</label>
+                           <select class="form-select" id="bdrRTO" name="bdrRTO">
+                              <option value="" selected disabled>Select target time...</option>
+                              <option>&lt; 1 Hour</option>
+                              <option>1 - 4 Hours</option>
+                              <option>4 - 8 Hours</option>
+                              <option>8 - 24 Hours</option>
+                              <option>&gt; 24 Hours</option>
+                              <option>Best Effort / Not Defined</option>
+                          </select>
+                        </div>
+                         <div class="col-md-6">
+                          <label class="form-label" for="bdrRPO">Required RPO (Data Loss Tolerance)</label>
+                           <select class="form-select" id="bdrRPO" name="bdrRPO">
+                              <option value="" selected disabled>Select tolerance...</option>
+                              <option>&lt; 15 Minutes</option>
+                              <option>15 - 60 Minutes</option>
+                              <option>1 - 4 Hours</option>
+                              <option>4 - 12 Hours</option>
+                              <option>12 - 24 Hours</option>
+                              <option>&gt; 24 Hours</option>
+                               <option>Best Effort / Not Defined</option>
+                          </select>
+                        </div>
+                         <div class="col-12">
+                           <label class="form-label" for="bdrSaaSBackup">Backup needed for SaaS platforms?</label>
+                           <select class="form-select" id="bdrSaaSBackup" name="bdrSaaSBackup" aria-describedby="bdrSaaSOtherError"> <option value="" selected disabled>Select...</option>
+                             <option value="Yes - Microsoft 365">Yes - Microsoft 365 (Email, OneDrive, SharePoint)</option>
+                             <option value="Yes - Google Workspace">Yes - Google Workspace (Gmail, Drive)</option>
+                             <option value="Yes - Both M365 & Google">Yes - Both M365 & Google</option>
+                             <option value="Yes - Other SaaS">Yes - Other SaaS (Specify Below)</option>
+                             <option value="No">No SaaS Backup Needed</option>
+                             <option value="Unsure">Unsure</option>
+                           </select>
+                            <input type="text" id="bdrSaaSOther" name="bdrSaaSOther" class="form-control other-input hidden mt-2" placeholder="Specify other SaaS platform needing backup" aria-describedby="bdrSaaSOtherError"/>
+                            <div class="invalid-feedback" id="bdrSaaSOtherError">Please specify the SaaS platform.</div>
+                             </div>
+                      </div>
+                    </div>`,
+
+              'PC Depot': () => `
+                    <div class="border rounded p-3 mb-4 service-section">
+                      <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-pc-display me-2"></i>PC Depot Details</h3>
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label" for="pcdMonthly">Avg. # New/Replacement PCs per Month</label>
+                          <input type="number" class="form-control" id="pcdMonthly" name="pcdMonthly" min="0" placeholder="e.g., 5" aria-describedby="pcdMonthlyError"/>
+                          <div class="invalid-feedback" id="pcdMonthlyError">Enter a valid number.</div>
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label" for="pcdImages"># of Standard PC Images Required</label>
+                          <input type="number" class="form-control" id="pcdImages" name="pcdImages" min="0" placeholder="e.g., 2 (Sales, Ops)" aria-describedby="pcdImagesError"/>
+                           <div class="invalid-feedback" id="pcdImagesError">Enter a valid number.</div>
+                        </div>
+                         <div class="col-12">
+                           <label class="form-label" for="pcdImageDetails">Specific Software / Settings for Standard Image(s)</label>
+                           <textarea class="form-control" id="pcdImageDetails" name="pcdImageDetails" rows="3" placeholder="List standard apps (e.g., Office, Adobe Reader, VPN Client), configurations (e.g., drive encryption, specific browser settings)"></textarea>
+                           <div class="field-note">Describe the typical setup for a new computer.</div>
+                        </div>
+                      </div>
+                    </div>`,
+
+              'Microsoft Cloud Services': () => `
+                    <div class="border rounded p-3 mb-4 service-section">
+                      <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-microsoft me-2"></i>Microsoft Cloud Details</h3>
+                       <p class="text-muted small">Focusing on Azure & Microsoft 365</p>
+                      <div class="row g-3">
+                        <div class="col-md-6">
+                          <label class="form-label" for="cloudAzureSpend">Estimated Azure Spend / Month ($)</label>
+                          <input type="number" class="form-control" id="cloudAzureSpend" name="cloudAzureSpend" min="0" placeholder="e.g., 1500" aria-describedby="cloudAzureSpendError"/>
+                          <div class="invalid-feedback" id="cloudAzureSpendError">Enter a valid number.</div>
+                          <div class="field-note">Rough estimate is okay.</div>
+                        </div>
+                         <div class="col-md-6">
+                           <fieldset class="checkbox-group">
+                               <legend>Primary Azure Services Used (Check all that apply)</legend>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcVM" value="Virtual Machines" name="cloudAzureServices">
+                                    <label class="form-check-label" for="azSvcVM">VMs</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcVNet" value="Virtual Network" name="cloudAzureServices">
+                                    <label class="form-check-label" for="azSvcVNet">VNet</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcSQL" value="Azure SQL" name="cloudAzureServices">
+                                    <label class="form-check-label" for="azSvcSQL">Azure SQL</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcApp" value="App Service" name="cloudAzureServices">
+                                    <label class="form-check-label" for="azSvcApp">App Service</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcStorage" value="Storage (Blobs/Files)" name="cloudAzureServices">
+                                    <label class="form-check-label" for="azSvcStorage">Storage</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcEntra" value="Entra ID (Azure AD)" name="cloudAzureServices">
+                                    <label class="form-check-label" for="azSvcEntra">Entra ID</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcBackup" value="Azure Backup" name="cloudAzureServices">
+                                    <label class="form-check-label" for="azSvcBackup">Azure Backup</label>
+                                </div>
+                                 <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="azSvcOtherCheck" value="Other" name="azSvcOtherCheck">
+                                    <label class="form-check-label" for="azSvcOtherCheck">Other</label>
+                                </div>
+                                <input type="text" id="azSvcOtherText" name="cloudAzureServicesOther" class="form-control form-control-sm other-input hidden mt-2" placeholder="Specify other Azure service(s)" aria-describedby="azSvcOtherTextError"/>
+                                <div class="invalid-feedback" id="azSvcOtherTextError">Please specify service(s).</div>
+                            </fieldset>
+                        </div>
+                        <div class="col-md-12">
+                         <fieldset>
+                              <legend class="mb-2">Approx. M365 License Mix (Enter counts)</legend>
+                              <div class="row g-2 align-items-center">
+                                <div class="col-sm-4 col-md-2">
+                                    <label for="licE3" class="col-form-label">E3:</label>
+                                    <input type="number" id="licE3" name="cloudM365_E3" class="form-control form-control-sm" min="0" aria-describedby="licE3Error">
+                                     <div class="invalid-feedback" id="licE3Error">Invalid #</div>
+                                </div>
+                                <div class="col-sm-4 col-md-2">
+                                    <label for="licE5" class="col-form-label">E5:</label>
+                                    <input type="number" id="licE5" name="cloudM365_E5" class="form-control form-control-sm" min="0" aria-describedby="licE5Error">
+                                     <div class="invalid-feedback" id="licE5Error">Invalid #</div>
+                                </div>
+                                 <div class="col-sm-4 col-md-2">
+                                    <label for="licF3" class="col-form-label">F3:</label>
+                                    <input type="number" id="licF3" name="cloudM365_F3" class="form-control form-control-sm" min="0" aria-describedby="licF3Error">
+                                    <div class="invalid-feedback" id="licF3Error">Invalid #</div>
+                                </div>
+                                 <div class="col-sm-6 col-md-3">
+                                    <label for="licBP" class="col-form-label">Business Premium:</label>
+                                    <input type="number" id="licBP" name="cloudM365_BusinessPremium" class="form-control form-control-sm" min="0" aria-describedby="licBPError">
+                                    <div class="invalid-feedback" id="licBPError">Invalid #</div>
+                                </div>
+                                 <div class="col-sm-6 col-md-3">
+                                    <label for="licOther" class="col-form-label">Other:</label>
+                                     <input type="text" id="licOther" name="cloudM365_Other" class="form-control form-control-sm" placeholder="e.g., 10x Visio Plan 2">
+                                </div>
+                              </div>
+                          </fieldset>
+                        </div>
+                         <div class="col-md-6">
+                          <label class="form-label" for="cloudEntraID">Using Entra ID (Azure AD)?</label>
+                           <select class="form-select" id="cloudEntraID" name="cloudEntraID">
+                             <option value="" selected disabled>Select status...</option>
+                             <option value="Yes - Synced with On-Prem AD">Yes - Synced with On-Prem AD</option>
+                             <option value="Yes - Cloud Only">Yes - Cloud Only</option>
+                             <option value="No">No</option>
+                             <option value="Unsure">Unsure</option>
+                           </select>
+                        </div>
+                         <div class="col-md-6">
+                           <label class="form-label" for="cloudIntune">Using Intune / Endpoint Manager?</label>
+                            <select class="form-select" id="cloudIntune" name="cloudIntune">
+                             <option value="" selected disabled>Select status...</option>
+                             <option value="Yes - For Mobile Devices (MDM)">Yes - For Mobile Devices (MDM)</option>
+                             <option value="Yes - For Computers (MEM/MAM)">Yes - For Computers (MEM/MAM)</option>
+                             <option value="Yes - Both MDM & MEM/MAM">Yes - Both MDM & MEM/MAM</option>
+                             <option value="No">No</option>
+                             <option value="Planning to Implement">Planning to Implement</option>
+                             <option value="Unsure">Unsure</option>
+                           </select>
+                        </div>
+                      </div>
+                    </div>`,
+
+                 // Handle the 'Other' service case
+                 'Other': () => {
+                     const otherTextValue = document.getElementById('svcOtherText').value.trim();
+                     const otherTitle = otherTextValue ? `Other: ${otherTextValue}` : 'Other Service Details';
+                     // Sanitize title slightly for display
+                     const safeTitle = otherTitle.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                     return `
+                        <div class="border rounded p-3 mb-4 service-section">
+                          <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-question-circle me-2"></i>${safeTitle}</h3>
+                          <div class="row g-3">
+                             <div class="col-12">
+                               <label class="form-label" for="otherServiceDetails">Please provide details about the requirements for this service:</label>
+                               <textarea class="form-control" id="otherServiceDetails" name="otherServiceDetails" rows="4" placeholder="Describe technical requirements, scope, quantities, specific goals, current pain points, etc."></textarea>
+                            </div>
+                          </div>
+                        </div>`;
+                    }
+          };
+
+          // Add sections for each currently selected service
+          const bgColors = ['section-bg-1', 'section-bg-2', 'section-bg-3', 'section-bg-4', 'section-bg-5'];
+          let colorIndex = 0;
+
+          currentSelections.forEach(svcKey => {
+              let templateKey = svcKey.startsWith('Other:') ? 'Other' : svcKey;
+              if (templates[templateKey]) {
+                  const sectionHTML = templates[templateKey]();
+                  const sectionDiv = document.createElement('div');
+                  sectionDiv.innerHTML = sectionHTML;
+                  sectionDiv.className = `service-section ${bgColors[colorIndex % bgColors.length]}`;
+                  dynamicSectionsWrapper.appendChild(sectionDiv);
+                  colorIndex++; // Move to next color for the next section
+              } else {
+                  console.warn(`No template found for service: ${svcKey}`);
+                  const sectionDiv = document.createElement('div');
+                  sectionDiv.innerHTML = `
+                      <div class="border rounded p-3 mb-4 service-section ${bgColors[colorIndex % bgColors.length]}">
+                        <h3 class="mt-0 mb-3 text-warning"><i class="bi bi-exclamation-triangle me-2"></i>Details for: ${svcKey.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</h3>
+                        <p class="text-muted">No specific form fields defined. Use 'Other Relevant Document' upload or 'Other Service Details' if applicable.</p>
+                      </div>`;
+                  dynamicSectionsWrapper.appendChild(sectionDiv);
+                  colorIndex++; // Move to next color for the next section
+              }
+          });
+      } // End buildDynamicSections
+
+
+      // ---------- Event Delegation for Dynamic Inputs ----------
+      if (detailsForm) {
+           detailsForm.addEventListener('change', (event) => {
+              const target = event.target;
+
+              // Toggle 'Other' text input based on Select value
+              if (target.tagName === 'SELECT') {
+                  const otherInputId = target.id + 'Other'; // Standard convention
+                  if (document.getElementById(otherInputId)) {
+                      toggleOtherInput(target, otherInputId, 'Other');
+                  }
+                  // Special case for SIEM select
+                  if (target.id === 'secSIEMExists') {
+                       toggleOtherInput(target, 'secSIEMTool', 'Yes');
+                  }
+                   // Special case for SaaS Backup select
+                  if (target.id === 'bdrSaaSBackup') {
+                       toggleOtherInput(target, 'bdrSaaSOther', 'Yes - Other SaaS');
+                  }
+              }
+
+              // Toggle 'Other' text input based on Checkbox state
+              if (target.type === 'checkbox' && target.id.endsWith('Check')) {
+                  const otherInputId = target.id.replace('Check', 'Text');
+                   if (document.getElementById(otherInputId)) {
+                       toggleOtherInputCheckbox(target, otherInputId);
+                   }
+              }
+           });
+      }
+
+
+      // ---------- Form Data Saving (localStorage) ----------
+      const debouncedSave = debounce(() => {
+          if (!detailsForm) return;
+          try {
+              const formData = new FormData(detailsForm);
+              const dataToSave = {};
+              // Convert FormData to a simple object, handling checkboxes correctly
+               detailsForm.querySelectorAll('input, select, textarea').forEach(input => {
+                   const name = input.name;
+                   if (!name || input.type === 'file') return; // Skip unnamed and file inputs
+
+                    if (input.type === 'checkbox') {
+                         if (!dataToSave[name]) dataToSave[name] = []; // Initialize array if needed
+                        if (input.checked) {
+                            // Use a consistent marker for the 'Other' checkbox itself
+                            if(input.id.endsWith('OtherCheck')) {
+                                dataToSave[name + '_checked'] = true; // Save the state of the 'Other' checkbox itself
+                            } else {
+                                dataToSave[name].push(input.value);
+                            }
+                        }
+                    } else if (input.type === 'radio') {
+                        if (input.checked) {
+                            dataToSave[name] = input.value;
+                        }
+                    } else {
+                        dataToSave[name] = input.value;
+                    }
+                  });
+              
+              
+              localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(dataToSave));
+              if(saveStatusSpan) {
+                  saveStatusSpan.textContent = `Draft saved ✓ (${new Date().toLocaleTimeString()})`;
+                  setTimeout(() => { if(saveStatusSpan) saveStatusSpan.textContent = ''; }, 3000); // Clear after 3s
+              }
+          } catch (error) {
+              console.error("Error saving form data to localStorage:", error);
+               if(saveStatusSpan) saveStatusSpan.textContent = 'Error saving draft.';
+          }   
+      }, SAVE_DEBOUNCE_MS);
+
+      // Attach listener to form for saving
+      if (detailsForm) {
+          detailsForm.addEventListener('input', debouncedSave); // Use 'input' for quicker response on text fields
+          detailsForm.addEventListener('change', debouncedSave); // Use 'change' for selects, checkboxes, radios
+      }
+
+      // ---------- Form Validation ----------
+      function validateForm() {
+          let isValid = true;
+          // Clear previous validation states and error summary
+          detailsForm.classList.remove('was-validated');
+          detailsForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+          detailsForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = el.dataset.defaultError || ''); // Reset to default msg if stored
+          formErrorSummaryDiv.classList.add('hidden');
+          errorListUl.innerHTML = '';
+          const errors = [];
+
+
+          detailsForm.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+              input.classList.remove('is-invalid'); // Reset first
+              input.removeAttribute('aria-invalid');
+              const errorFeedback = document.getElementById(input.getAttribute('aria-describedby')?.split(' ')[0]); // Get first describedby ID for error message
+              if (errorFeedback && !errorFeedback.dataset.defaultError) {
+                 errorFeedback.dataset.defaultError = errorFeedback.textContent; // Store default message
+              }
+
+
+              let fieldValid = true;
+              if (input.tagName === 'SELECT' && input.value === '') {
+                  fieldValid = false;
+              } else if (input.type === 'checkbox' && !input.checked) {
+                   // Required checkboxes aren't typical, but handle if needed (usually group validation)
+                   // If a specific checkbox IS required, this would apply.
+                   // fieldValid = false; // Example if a single checkbox was required
+                   // For now, rely on 'Other' text requiredness below
+              } else if (input.type === 'text' || input.type === 'number' || input.type === 'email' || input.tagName === 'TEXTAREA') {
+                 if (!input.value.trim()) {
+                     fieldValid = false;
+                 }
+                 // Basic email format check
+                 if (input.type === 'email' && input.value.trim() && !/^\S+@\S+\.\S+$/.test(input.value)) {
+                     fieldValid = false;
+                     if(errorFeedback) errorFeedback.textContent = 'Please enter a valid email address.';
+                 }
+              }
+
+              // Handle 'Other' fields specifically - required only if trigger is 'Other'/'Yes'/checked
+              if(input.classList.contains('other-input') && !input.classList.contains('hidden')) {
+                  if (!input.value.trim()) {
+                      fieldValid = false; // 'Other' text is required if visible
+                  }
+              }
+
+              if (!fieldValid && !input.disabled) { // Only invalidate enabled fields
+                  isValid = false;
+                  input.classList.add('is-invalid');
+                  input.setAttribute('aria-invalid', 'true');
+                  // Add error to summary list
+                   const label = detailsForm.querySelector(`label[for="${input.id}"]`)?.textContent.replace(' *','').trim() || input.name;
+                  errors.push({ id: input.id, label: label });
+              }
+          });
+
+            // Show error summary if errors exist
+          if (!isValid) {
+              errors.forEach(err => {
+                  const li = document.createElement('li');
+                  const link = document.createElement('a');
+                  link.href = `#${err.id}`;
+                  link.textContent = err.label;
+                  link.onclick = (e) => {
+                      e.preventDefault();
+                      document.getElementById(err.id)?.focus();
+                  };
+                  li.appendChild(link);
+                  errorListUl.appendChild(li);
+              });
+              formErrorSummaryDiv.classList.remove('hidden');
+              formErrorSummaryDiv.focus(); // Focus the summary for screen readers
+              // Trigger Bootstrap's visual feedback styles
+              detailsForm.classList.add('was-validated');
+          }
+
+          return isValid;
+      }
+
+
+      // ---------- Form Submission (Local Summary Only) ----------
+      if (detailsForm) {
+          detailsForm.addEventListener('submit', (event) => { // Removed async
+              event.preventDefault(); // PREVENT default form submission FIRST!
+
+              console.log('Submit handler started.'); // Log: Start
+
+              // Clear previous submission status
+              submissionStatusDiv.innerHTML = '';
+              submissionStatusDiv.className = ''; // Reset classes
+
+
+              if(submitBtn) submitBtn.disabled = true;
+
+              // Validate form
+              console.log('Calling validateForm()...'); // Log: Before validation
+              const isValid = validateForm();
+              console.log(`validateForm() returned: isValid=${isValid}`); // Log: After validation
+
+              // If validation fails, show errors and stop
+              if (!isValid) {
+                  console.log('Validation failed, stopping submission.'); // Log: Validation failed
+                  if(submitBtn) submitBtn.disabled = false;
+                  submissionStatusDiv.innerHTML = '<div class="alert alert-warning">Please review the errors above.</div>';
+                  return; // Stop if validation fails
+              }
+
+              // Disable button and show spinner
+              if(submitBtn) submitBtn.disabled = true;
+              if(submitSpinner) submitSpinner.classList.remove('hidden');
+
+              // --- Start: NEW Try-Catch for local summary display --- 
+              try {
+                  console.log('Validation passed, generating summary and showing step 3...');
+
+                  // Generate and display summary
+                  currentSummaryText = generateSummaryText(new FormData(detailsForm));
+                  summaryOutputDiv.textContent = currentSummaryText;
+                  // If you have a hidden textarea for actual submission later, update it:
+                  // const formattedSummaryTextarea = document.getElementById('formattedSummary'); 
+                  // if(formattedSummaryTextarea) formattedSummaryTextarea.value = currentSummaryText;
+
+                  // Hide step 2, show step 3
+                  step2Section.classList.add('hidden');
+                  step3Section.classList.remove('hidden');
+                  updateStepper(3); // Update stepper to show step 3 active
+                  window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top of summary
+
+                  // Clean up
+                  localStorage.removeItem(FORM_STORAGE_KEY);
+                  if(saveStatusSpan) saveStatusSpan.textContent = 'Draft cleared.';
+                  console.log("Form draft cleared, summary displayed.");
+
+                  // Hide spinner (button remains disabled on success for now)
+                  if(submitSpinner) submitSpinner.classList.add('hidden');
+              } catch (error) {
+                  // -- ERROR PATH (During Summary/Display) --
+                  console.error("Error generating summary or showing step 3:", error);
+                  submissionStatusDiv.innerHTML = `<div class="alert alert-danger">An error occurred while preparing the summary. Please try again or contact support. Details: ${error.message}</div>`;
+                  // Hide spinner and re-enable button on error
+                  if(submitSpinner) submitSpinner.classList.add('hidden'); 
+                  if(submitBtn) submitBtn.disabled = false; 
+              }
+              // --- End: NEW Try-Catch --- 
+
+          });
+      } // End if(detailsForm)
+      function generateSummaryText(formData) {
+          // Collate selected services
+          const serviceLines = getSelectedServices();
+          // Collate form data (merge multi‑value fields)
+          const aggregated = {};
+          formData.forEach((value, key) => {
+              if (key === 'formattedSummary' || value instanceof File) return; // skip aux / files
+              if (aggregated[key]) {
+                  if (Array.isArray(aggregated[key])) aggregated[key].push(value);
+                  else aggregated[key] = [aggregated[key], value];
+              } else {
+                  aggregated[key] = value;
+              }
+          });
+
+          const lines = [];
+          lines.push('=== Dataprise Service Requirements Summary ===');
+          lines.push('');
+          lines.push('--- Selected Services ---');
+          lines.push(serviceLines.length ? serviceLines.join(', ') : 'None');
+          lines.push('');
+          lines.push('--- Technical Details ---');
+          Object.entries(aggregated).forEach(([k, v]) => {
+              lines.push(`${k}: ${Array.isArray(v) ? v.join(', ') : v}`);
+          });
+          lines.push('');
+          lines.push('Generated: ' + new Date().toLocaleString());
+          return lines.join('\n');
+      }
+      // ---------- Download Buttons (Step 3) ----------
+      if (dlTextBtn) {
+          dlTextBtn.addEventListener('click', () => {
+              if (!currentSummaryText) return;
+              const blob = new Blob([currentSummaryText], { type: 'text/plain;charset=utf-8' });
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = `${getSafeFilenamePrefix()}_requirements_${new Date().toISOString().split('T')[0]}.txt`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(a.href);
+          });
+      }
+
+     if (dlPdfBtn) {
+         dlPdfBtn.addEventListener('click', () => {
+             if (!currentSummaryText) return;
+             try {
+                 const { jsPDF } = window.jspdf;
+                 const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                 const margin = 15;
+                 const usableWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
+
+                 pdf.setFont('helvetica', 'normal');
+                 pdf.setFontSize(10);
+
+                 // Function to add page number footer
+                 const addFooters = () => {
+                     const pageCount = pdf.internal.getNumberOfPages();
+                     pdf.setFontSize(8);
+                      pdf.setTextColor(150); // Gray color
+                     for (let i = 1; i <= pageCount; i++) {
+                         pdf.setPage(i);
+                         pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - margin/2, { align: 'center' });
+                     }
+                     pdf.setTextColor(0); // Reset color
+                     pdf.setFontSize(10); // Reset font size
+                 };
+
+                 // Title
+                 pdf.setFontSize(16);
+                 pdf.setFont('helvetica', 'bold');
+                 pdf.text("Dataprise Service Requirements Summary", pdf.internal.pageSize.getWidth() / 2, margin, { align: 'center' });
+                 pdf.setFontSize(10);
+                  pdf.setFont('helvetica', 'normal');
+                 let cursorY = margin + 10;
+
+                 // Use splitTextToSize for wrapping and autoTable for better structure (optional)
+                 const lines = pdf.splitTextToSize(currentSummaryText, usableWidth);
+
+                 lines.forEach(line => {
+                      if (cursorY + 5 > pdf.internal.pageSize.getHeight() - margin) { // Check space before adding line
+                          addFooters(); // Add footer before adding page
+                         pdf.addPage();
+                         cursorY = margin;
+                     }
+
+                      // Basic bolding for section headers
+                     if (line.startsWith('***') || line.startsWith('---') || line.startsWith('===')) {
+                         pdf.setFont('helvetica', 'bold');
+                         pdf.text(line, margin, cursorY);
+                         pdf.setFont('helvetica', 'normal');
+                     } else {
+                          // Indent lines that are clearly key-value pairs
+                         if(line.includes(': ') && !line.startsWith(' ') && !line.startsWith('(')) {
+                            const parts = line.split(': ');
+                            const key = parts[0] + ':';
+                            const value = parts.slice(1).join(': ');
+                             pdf.setFont('helvetica', 'bold');
+                             pdf.text(key, margin, cursorY);
+                             pdf.setFont('helvetica', 'normal');
+                             pdf.text(value, margin + pdf.getStringUnitWidth(key) * pdf.getFontSize() / pdf.internal.scaleFactor + 1, cursorY); // Position value after key
+
+                         } else {
+                            pdf.text(line, margin, cursorY);
+                         }
+
+                     }
+                     cursorY += 5; // Line height approximation
+                 });
+
+                  addFooters(); // Add footer to the last page
+
+                 pdf.save(`${getSafeFilenamePrefix()}_requirements_${new Date().toISOString().split('T')[0]}.pdf`);
+
+             } catch (error) {
+                 console.error("Error generating PDF:", error);
+                 alert("Sorry, there was an error generating the PDF. Please try downloading the .txt file instead.");
+             }
+         });
+     } // End if(dlPdfBtn)
+
+
+  }); // End DOMContentLoaded
+</script>
+</body>
+</html>
