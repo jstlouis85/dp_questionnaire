@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script type="text/javascript" src="/___vscode_livepreview_injected_script"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Dataprise – Guided Checklist & Shared Questionnaire v2.1 – FIXED</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+  />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
+  <style>
+    :root {
+      --primary-color: #2c3e50; /* Dark Blue-Gray */
+      --secondary-color: #3498db; /* Bright Blue */
+      --accent-color: #e74c3c; /* Red */
+      --light-color: #ecf0f1; /* Light Gray */
+      --success-color: #2ecc71; /* Green */
+      --warning-color: #f39c12; /* Orange */
+
+      /* Section Background Colors */
+      --section-bg-1: #e8f6f3; /* Light Mint */
+      --section-bg-2: #eaf2f8; /* Light Blue */
+      --section-bg-3: #fef5e7; /* Light Peach */
+      --section-bg-4: #f4ecf7; /* Light Lavender */
+      --section-bg-5: #fdebd0; /* Light Yellow */
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      line-height: 1.6; /* Improved readability */
+    }
+
+    .container-card {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 30px 40px; /* Slightly more padding */
+      background: #fff;
+      border-radius: 12px; /* Softer corners */
+      box-shadow: 0 10px 30px rgba(0,0,0,0.09);
+    }
+
+    h1, h2, h3 {
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    h1 {
+        font-size: 1.85rem; /* Slightly larger */
+        margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.45rem;
+      margin-top: 30px;
+      border-bottom: 2px solid var(--light-color);
+      padding-bottom: 10px;
+      margin-bottom: 1.5rem; /* More space below h2 */
+    }
+
+    h3 {
+        font-size: 1.2rem; /* Slightly larger h3 */
+        margin-bottom: 1rem;
+    }
+
+    .step-badge {
+      background: var(--secondary-color);
+      color:#fff;
+      border-radius:50%;
+      width:30px; /* Slightly larger badge */
+      height:30px;
+      display:inline-flex;
+      justify-content:center;
+      align-items:center;
+      font-size:0.95rem;
+      margin-right:10px;
+      font-weight: bold;
+    }
+
+    /* Required field label styling */
+    .form-label.required::after {
+        content: " *";
+        color: var(--accent-color);
+        font-weight: bold;
+    }
+
+    /* Form group spacing */
+    .form-label {
+        margin-bottom: 0.4rem;
+        font-weight: 500;
+        display: block; /* Ensure label is block for spacing */
+    }
+    .row > .col, .row > [class*="col-"] {
+        margin-bottom: 1rem; /* Consistent space below columns */
+    }
+
+    /* Grouped checkboxes/radios */
+    fieldset {
+        border: none; /* Remove default fieldset border */
+        padding: 0;
+        margin: 0 0 0.5rem 0; /* Add margin below fieldset */
+    }
+    legend {
+        font-weight: 500;
+        display: block;
+        margin-bottom: 0.6rem;
+        padding: 0; /* Reset padding */
+        float: none; /* Override Bootstrap reset */
+        width: auto; /* Override Bootstrap reset */
+        font-size: 1em; /* Match label size */
+    }
+    .checkbox-group .form-check,
+    .radio-group .form-check {
+        margin-bottom: 0.4rem;
+        padding-left: 1.8em; /* Ensure consistent alignment */
+    }
+    .form-check-inline {
+         margin-right: 1rem; /* More space between inline items */
+    }
+
+
+    /* Hideable 'Other' text inputs */
+    .other-input {
+        margin-top: 0.6rem; /* More space above 'Other' input */
+    }
+
+    /* Smaller text for notes/examples */
+    .field-note {
+        font-size: 0.88em;
+        color: #6c757d;
+        margin-top: 0.2rem;
+    }
+
+    /* Utility classes */
+    .hidden { display:none!important; }
+
+    /* Accessibility: visually hidden */
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Feedback styling */
+    #saveStatus {
+        font-size: 0.85em;
+        color: var(--success-color);
+        padding: 5px 0;
+        min-height: 20px; /* Prevent layout shift */
+        display: block; /* Ensure it takes space */
+    }
+    #submissionStatus {
+        margin-top: 1rem;
+    }
+    .spinner-border-sm {
+        vertical-align: text-bottom;
+    }
+
+    /* Styling for error summary */
+     #formErrorSummary {
+         margin-bottom: 1.5rem;
+     }
+     #formErrorSummary ul {
+         padding-left: 1.2rem;
+         margin-bottom: 0;
+     }
+      #formErrorSummary li a {
+          color: var(--accent-color);
+          text-decoration: underline;
+          font-weight: bold;
+      }
+
+    /* Adjustments for Bootstrap validation */
+    .form-control.is-invalid, .form-select.is-invalid {
+      border-color: var(--accent-color);
+    }
+    .invalid-feedback {
+      display: none; /* Hidden by default, shown by JS/Bootstrap */
+      color: var(--accent-color);
+      font-size: 0.85em;
+    }
+    .was-validated :invalid ~ .invalid-feedback,
+    .was-validated :invalid ~ .invalid-tooltip, /* For tooltips if used */
+    .is-invalid ~ .invalid-feedback,
+    .is-invalid ~ .invalid-tooltip {
+      display: block; /* Bootstrap's default show mechanism */
+    }
+
+    /* Stepper Styles */
+    .stepper {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--light-color);
+        list-style: none;
+        padding-left: 0;
+    }
+    .stepper-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        flex: 1;
+        position: relative;
+    }
+    .stepper-item:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        top: 15px; /* Vertically align with center of circle */
+        left: 50%;
+        height: 2px;
+        width: calc(100% - 40px); /* Adjust width to connect circles */
+        background-color: var(--light-color);
+        z-index: 1;
+        transform: translateX(20px); /* Start after the circle */
+    }
+    .stepper-circle {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: var(--light-color);
+        color: var(--primary-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        border: 2px solid var(--light-color);
+        z-index: 2;
+        position: relative; /* Ensure circle is above the line */
+    }
+    .stepper-title {
+        font-size: 0.9rem;
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+    .stepper-item.active .stepper-circle {
+        background-color: var(--secondary-color);
+        border-color: var(--secondary-color);
+        color: #fff;
+    }
+    .stepper-item.active .stepper-title {
+        font-weight: bold;
+    }
+     .stepper-item.completed .stepper-circle {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+        color: #fff;
+    }
+    .stepper-item.completed:not(:last-child)::after {
+        background-color: var(--success-color);
+    }
+
+    /* Service Section Backgrounds */
+    .service-section {
+        padding: 20px; /* Add padding to sections */
+        margin-bottom: 1.5rem; /* Space between sections */
+        border-radius: 8px; /* Slightly rounded corners */
+        border: 1px solid var(--light-color);
+    }
+    .section-bg-1 { background-color: var(--section-bg-1); border-left: 5px solid #1abc9c; }
+    .section-bg-2 { background-color: var(--section-bg-2); border-left: 5px solid #3498db; }
+    .section-bg-3 { background-color: var(--section-bg-3); border-left: 5px solid #f39c12; }
+    .section-bg-4 { background-color: var(--section-bg-4); border-left: 5px solid #9b59b6; }
+    .section-bg-5 { background-color: var(--section-bg-5); border-left: 5px solid #f1c40f; }
+  </style>
+</head>
+<body>
+  <div class="container-card">
+    <h1 class="text-center">Dataprise – Guided Checklist & Shared Questionnaire</h1>
+
+    <!-- Stepper -->
+    <ul class="stepper" id="stepper">
+      <li class="stepper-item active" data-step="1">
+        <div class="stepper-circle">1</div>
+        <div class="stepper-title">Service Checklist</div>
+      </li>
+      <li class="stepper-item" data-step="2">
+        <div class="stepper-circle">2</div>
+        <div class="stepper-title">Details</div>
+      </li>
+      <li class="stepper-item" data-step="3">
+        <div class="stepper-circle">3</div>
+        <div class="stepper-title">Summary</div>
+      </li>
+    </ul>
+
+    <section id="step1">
+      <h2><span class="step-badge">1</span>Service Checklist (For Rep Use)</h2>
+      <p class="text-muted">Select the services discussed with the customer. Then, either generate a link to send to the customer for them to complete the technical details, or continue to fill them out yourself.</p>
+
+      <div class="row row-cols-1 row-cols-md-2 g-3 mb-3">
+        <div class="col">
+          <div class="form-check fs-5"> <input class="form-check-input" type="checkbox" id="svcManagedIT" value="Fully Managed IT" />
+            <label class="form-check-label" for="svcManagedIT">Fully Managed IT</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcManagedServer" value="Managed Server" />
+            <label class="form-check-label" for="svcManagedServer">Managed Server</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcServiceDesk" value="Service Desk" />
+            <label class="form-check-label" for="svcServiceDesk">Service Desk</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcInfrastructure" value="Infrastructure" />
+            <label class="form-check-label" for="svcInfrastructure">Infrastructure</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcCyber" value="Cybersecurity Monitoring (SIEM)" />
+            <label class="form-check-label" for="svcCyber">Cybersecurity Monitoring (SIEM)</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcBackup" value="Backup & Disaster Recovery" />
+            <label class="form-check-label" for="svcBackup">Backup & Disaster Recovery</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcPCDepot" value="PC Depot" />
+            <label class="form-check-label" for="svcPCDepot">PC Depot</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcCloud" value="Microsoft Cloud Services" />
+            <label class="form-check-label" for="svcCloud">Microsoft Cloud Services</label>
+          </div>
+        </div>
+        <div class="col">
+          <div class="form-check fs-5">
+            <input class="form-check-input" type="checkbox" id="svcOther" value="Other" />
+            <label class="form-check-label" for="svcOther">Other (Specify Below)</label>
+          </div>
+          <input type="text" id="svcOtherText" class="form-control form-control-sm mt-2 hidden" placeholder="Describe other required services" />
+        </div>
+      </div>
+
+      <div class="mt-4 d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" id="generateLinkBtn"><i class="bi bi-link-45deg me-1"></i>Generate Link for Customer</button>
+        <button class="btn btn-primary" id="gotoStep2"><i class="bi bi-pencil-square me-1"></i>Fill Out Technical Form Now</button>
+      </div>
+      <div id="linkOutput" class="alert alert-info mt-3 hidden"></div>
+      <div id="linkCopiedMsg" class="alert alert-success mt-3 hidden">Link copied to clipboard!</div>
+    </section>
+
+    <section id="step2" class="hidden mt-5">
+      <h2><span class="step-badge">2</span>Company & Technical Details</h2>
+      <p class="text-muted">Please provide the following details. Fields marked with <span class="text-danger fw-bold">*</span> are required. Your progress is saved automatically in this browser.</p>
+       <div id="formErrorSummary" class="alert alert-danger hidden" role="alert">
+          <strong>Please correct the following errors:</strong>
+          <ul id="errorList"></ul>
+        </div>
+      <span id="saveStatus" aria-live="polite"></span> <form id="detailsForm"
+            novalidate> <input type="hidden" name="_subject" value="New Dataprise Questionnaire Submission">
+           <input type="hidden" name="_captcha" value="false"> <textarea name="formattedSummary" id="formattedSummary" class="visually-hidden"></textarea>
+
+        <div class="border rounded p-3 mb-4 bg-light">
+            <h3 class="mt-0 mb-3">Company Information</h3>
+             <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label" for="clientName">Client Organization Name</label>
+                <input type="text" class="form-control" id="clientName" name="clientName" placeholder="e.g., Acme Corp LLC">
+              </div>
+              <div class="col-md-6">
+                <label class="form-label required" for="industry">Industry</label>
+                <select class="form-select" id="industry" name="industry" required aria-required="true" aria-describedby="industryError industryOtherError">
+                    <option value="" selected disabled>Select Industry...</option>
+                    <option>Technology</option>
+                    <option>Healthcare</option>
+                    <option>Finance / Banking</option>
+                    <option>Legal</option>
+                    <option>Manufacturing</option>
+                    <option>Construction</option>
+                    <option>Education</option>
+                    <option>Non-Profit</option>
+                    <option>Government Contractor</option>
+                    <option>Retail</option>
+                    <option>Hospitality</option>
+                    <option value="Other">Other (Specify)</option>
+                </select>
+                 <div class="invalid-feedback" id="industryError">Please select an industry.</div>
+                 <input type="text" id="industryOther" name="industryOther" class="form-control other-input hidden" placeholder="Specify other industry" aria-describedby="industryOtherError"/>
+                 <div class="invalid-feedback" id="industryOtherError">Please specify the industry if 'Other' is selected.</div>
+              </div>
+               <div class="col-md-6">
+                  <label class="form-label" for="contactName">Primary Contact Name</label>
+                  <input type="text" class="form-control" id="contactName" name="contactName" />
+              </div>
+               <div class="col-md-6">
+                  <label class="form-label" for="contactEmail">Primary Contact Email</label>
+                  <input type="email" class="form-control" id="contactEmail" name="contactEmail" placeholder="name@example.com" aria-describedby="contactEmailError"/>
+                  <div class="invalid-feedback" id="contactEmailError">Please enter a valid email address.</div>
+                  </div>
+              <div class="col-12" id="locationsSection">
+                <h3 class="h5 mt-3 mb-3">Locations and Users per Location</h3>
+                <div id="locationsContainer" class="mb-2">
+                  <!-- Location entries will be dynamically added here by JavaScript -->
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm" id="addLocationBtn">
+                  <i class="bi bi-plus-circle"></i> Add Location
+                </button>
+              </div>
+            </div>
+        </div>
+
+        <div id="dynamicSections">
+            </div>
+
+        <div class="border rounded p-3 mb-4 mt-4">
+            <h3 class="mt-0 mb-3">Helpful Supporting Documents</h3>
+            <p class="text-muted small"><strong>Note:</strong> This form only collects filenames due to web limitations. Max. 20MB each. Your Dataprise contact will follow up to arrange secure transfer of the actual files separately.</p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label" for="file_serverList">Server / Asset List (.csv, .xlsx)</label>
+                <input type="file" class="form-control" id="file_serverList" name="file_serverList" accept=".csv,.xlsx,.xls" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_networkConfig">Network / Firewall Config Export</label>
+                <input type="file" class="form-control" id="file_networkConfig" name="file_networkConfig" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_diagram">Architecture Diagram (.png, .pdf, .vsdx)</label>
+                <input type="file" class="form-control" id="file_diagram" name="file_diagram" accept=".png,.pdf,.vsdx,.jpg,.jpeg" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_azureExport">Azure Cost Export (.csv, .json)</label>
+                <input type="file" class="form-control" id="file_azureExport" name="file_azureExport" accept=".csv,.json" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="file_m365Export">Microsoft 365 Service Report (.csv)</label>
+                <input type="file" class="form-control" id="file_m365Export" name="file_m365Export" accept=".csv" />
+              </div>
+               <div class="col-md-6">
+                <label class="form-label" for="file_other">Other Relevant Document</label>
+                <input type="file" class="form-control" id="file_other" name="file_other" />
+              </div>
+            </div>
+        </div>
+
+        <div id="submissionStatus"></div> <!-- For AJAX status messages -->
+
+        <div class="mt-4 d-flex flex-wrap gap-3 align-items-center">
+          <!-- Back Button -->
+          <button class="btn btn-secondary" type="button" id="backToStep1"><i class="bi bi-arrow-left me-1"></i>Back to Service Selection</button>
+
+          <!-- Proceed Button (was Submit) -->
+          <button class="btn btn-success btn-lg" type="submit" id="submitBtn">
+              <span class="spinner-border spinner-border-sm hidden me-1" role="status" aria-hidden="true"></span>
+              <i class="bi bi-arrow-right me-1"></i> <!-- Changed icon -->
+              Proceed to Summary <!-- Changed text -->
+          </button>
+
+          <!-- Clear Draft Button -->
+          <button class="btn btn-sm btn-outline-danger" type="button" id="clearDraftBtn" title="Clear locally saved draft"><i class="bi bi-trash me-1"></i>Clear Draft</button>
+        </div>
+      </form>
+    </section>
+
+    <section id="step3" class="hidden mt-5">
+      <h2><span class="step-badge">3</span>Summary & Download</h2>
+       <p class="text-muted">Thank you! Your details have been submitted. Here is a summary for your records. You can download a copy below.</p>
+      <div id="summaryOutput" class="bg-light p-3 rounded border mb-3" style="white-space: pre-wrap; font-family: monospace; font-size: 0.9rem; max-height: 500px; overflow-y: auto;"></div>
+      <div class="mt-3 d-flex flex-wrap gap-2">
+        <button class="btn btn-outline-primary" id="dlText"><i class="bi bi-download me-1"></i>Download Summary (.txt)</button>
+        <button class="btn btn-outline-danger" id="dlPdf"><i class="bi bi-file-earmark-pdf me-1"></i>Download Summary (PDF)</button>
+      </div>
+       <div class="mt-4">
+           <button class="btn btn-secondary" type="button" id="startOverBtn"><i class="bi bi-arrow-clockwise me-1"></i>Start New Questionnaire</button>
+       </div>
+    </section>
+  </div>
+
+<script>
+  // Wrap all script logic in DOMContentLoaded to ensure DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+
+      // ---------- Constants and Globals ----------
+      const FORM_STORAGE_KEY = 'datapriseFormData';
+      const SAVE_DEBOUNCE_MS = 1500; // Save 1.5 seconds after last input
+
+      const qs = new URLSearchParams(window.location.search);
+      const selectedParam = qs.get('selected');
+      const otherTextParam = qs.get('otherText');
+
+      const step1Section = document.getElementById('step1');
+      const step2Section = document.getElementById('step2');
+      const step3Section = document.getElementById('step3');
+      const detailsForm = document.getElementById('detailsForm');
+      const dynamicSectionsWrapper = document.getElementById('dynamicSections');
+      const summaryOutputDiv = document.getElementById('summaryOutput');
+      const formErrorSummaryDiv = document.getElementById('formErrorSummary');
+      const errorListUl = document.getElementById('errorList');
+
+      const otherCheckbox = document.getElementById('svcOther');
+      const otherTextInput = document.getElementById('svcOtherText');
+      const generateLinkBtn = document.getElementById('generateLinkBtn');
+      const gotoStep2Btn = document.getElementById('gotoStep2');
+      const linkOutputDiv = document.getElementById('linkOutput');
+      const linkCopiedMsgDiv = document.getElementById('linkCopiedMsg');
+      const backToStep1Btn = document.getElementById('backToStep1');
+      const submitBtn = document.getElementById('submitBtn');
+      const submitSpinner = submitBtn.querySelector('.spinner-border');
+      const submissionStatusDiv = document.getElementById('submissionStatus');
+      const saveStatusSpan = document.getElementById('saveStatus');
+      const clearDraftBtn = document.getElementById('clearDraftBtn');
+      const dlTextBtn = document.getElementById('dlText');
+      const dlPdfBtn = document.getElementById('dlPdf');
+      const startOverBtn = document.getElementById('startOverBtn');
+      const stepper = document.getElementById('stepper'); // Get the stepper UL
+
+      let saveTimeout; // For debouncing localStorage save
+      let currentSummaryText = ''; // Store summary for download
+      let locationIndex = 0; // For dynamic location fields
+      let fmServerIndex = 0; // Index for dynamic server fields in Fully Managed IT
+      let msServerIndex = 0; // Index for Managed Server entries
+
+
+      // ---------- Utilities ----------
+
+      // Debounce function
+      function debounce(func, wait) {
+          let timeout;
+          return function executedFunction(...args) {
+              const later = () => {
+                  clearTimeout(timeout);
+                  func(...args);
+              };
+              clearTimeout(timeout);
+              timeout = setTimeout(later, wait);
+          };
+      }
+
+      // Helper to get selected service values
+      function getSelectedServices() {
+          const boxes = step1Section.querySelectorAll('input[type="checkbox"]');
+          const selected = [];
+          boxes.forEach(cb => {
+              if (cb.checked) {
+                  if (cb.id === 'svcOther') { // Check by ID for the main 'Other' service
+                      const otherText = otherTextInput.value.trim();
+                      selected.push(otherText ? `Other: ${otherText}` : 'Other');
+                  } else {
+                      selected.push({id: cb.id, value: cb.value, label: cb.nextElementSibling.textContent.trim()});
+                  }
+              }
+          });
+          return selected;
+      }
+
+
+      // Helper to show temporary message
+      function showTemporaryMessage(elementId, message, duration = 2000, isError = false) {
+          const el = document.getElementById(elementId);
+          if (!el) return;
+          el.textContent = message;
+          el.className = isError ? 'alert alert-danger mt-3' : 'alert alert-success mt-3'; // Reset classes
+          el.classList.remove('hidden');
+          setTimeout(() => {
+              el.classList.add('hidden');
+          }, duration);
+      }
+
+       // Helper to toggle visibility/required state of 'Other' text input for select/radio
+      function toggleOtherInput(sourceElement, otherInputId, triggerValue = 'Other') {
+          const otherInput = document.getElementById(otherInputId);
+          if (!otherInput) return;
+
+          let isTriggered = false;
+          if (typeof triggerValue === 'string') {
+            isTriggered = sourceElement.value === triggerValue;
+          } else if (Array.isArray(triggerValue)) {
+            isTriggered = triggerValue.includes(sourceElement.value);
+          }
+
+
+          otherInput.classList.toggle('hidden', !isTriggered);
+          otherInput.required = isTriggered;
+          otherInput.disabled = !isTriggered; // Disable when hidden
+          otherInput.setAttribute('aria-hidden', !isTriggered); // Accessibility
+           if (isTriggered) {
+                otherInput.focus();
+           } else {
+               otherInput.value = ''; // Clear value if hidden
+               otherInput.classList.remove('is-invalid');
+               const errorFeedbackId = otherInput.getAttribute('aria-describedby');
+                if(errorFeedbackId) {
+                    const errorFeedback = document.getElementById(errorFeedbackId.split(' ')[0]);
+                    if(errorFeedback) errorFeedback.textContent = '';
+                }
+           }
+      }
+
+      // Helper to handle checkbox groups triggering an 'Other' input
+      function toggleOtherInputCheckbox(checkboxElement, otherInputId) {
+          const otherInput = document.getElementById(otherInputId);
+          if (!otherInput) return;
+          const isChecked = checkboxElement.checked;
+          otherInput.classList.toggle('hidden', !isChecked);
+          otherInput.required = isChecked;
+          otherInput.disabled = !isChecked;
+          otherInput.setAttribute('aria-hidden', !isChecked);
+          if (isChecked) {
+              otherInput.focus();
+          } else {
+              otherInput.value = '';
+               otherInput.classList.remove('is-invalid');
+               const errorFeedbackId = otherInput.getAttribute('aria-describedby');
+                if(errorFeedbackId) {
+                    const errorFeedback = document.getElementById(errorFeedbackId.split(' ')[0]);
+                    if(errorFeedback) errorFeedback.textContent = '';
+                }
+          }
+      }
+
+      // Generate a safe filename prefix
+      function getSafeFilenamePrefix() {
+          const clientNameInput = document.getElementById('clientName');
+          const companyName = clientNameInput ? clientNameInput.value : 'Dataprise';
+          return companyName.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'dataprise';
+      }
+
+      // Function to update the stepper visual state
+      function updateStepper(currentStep) {
+          if (!stepper) return;
+          const items = stepper.querySelectorAll('.stepper-item');
+          items.forEach(item => {
+              const step = parseInt(item.getAttribute('data-step'), 10);
+              item.classList.remove('active', 'completed');
+              if (step < currentStep) {
+                  item.classList.add('completed');
+              } else if (step === currentStep) {
+                  item.classList.add('active');
+              }
+          });
+      }
+
+      // Helper functions to get form values
+        function getInputValue(id) {
+            const el = document.getElementById(id);
+            return el ? el.value : '';
+        }
+
+        function getCheckboxValue(id) {
+            const el = document.getElementById(id);
+            return el ? el.checked : false;
+        }
+
+        function getRadioValue(name) {
+            const el = document.querySelector(`input[name="${name}"]:checked`);
+            return el ? el.value : '';
+        }
+
+        function getDynamicLocationOptions() {
+            const lc = document.getElementById('locationsContainer');
+            let optionsHTML = '';
+            if (lc) {
+                const locationEntries = lc.querySelectorAll('.location-entry');
+                locationEntries.forEach((entry, index) => {
+                    const nameInput = entry.querySelector('.location-name');
+                    if (nameInput && nameInput.value.trim()) {
+                        optionsHTML += `<option value="${nameInput.value.trim()}">${nameInput.value.trim()}</option>`;
+                    } else {
+                        // optionsHTML += `<option value="Unnamed Location ${index + 1}">Unnamed Location ${index + 1}</option>`;
+                    }
+                });
+            }
+            if (optionsHTML === '') {
+                optionsHTML = '<option value="" disabled>No locations defined yet</option>';
+            }
+            return optionsHTML;
+        }
+
+
+      // ---------- Step 1 Behaviour (Rep) ----------
+      if (otherCheckbox) {
+          otherCheckbox.addEventListener('change', e => {
+              const isChecked = e.target.checked;
+              otherTextInput.classList.toggle('hidden', !isChecked);
+              otherTextInput.disabled = !isChecked;
+              if (!isChecked) {
+                  otherTextInput.value = '';
+              } else {
+                  otherTextInput.focus();
+              }
+          });
+      }
+
+      if (generateLinkBtn) {
+          generateLinkBtn.addEventListener('click', () => {
+              const sel = getSelectedServices();
+              if (!sel.length) {
+                  alert('Please select at least one service first.');
+                  return;
+              }
+              // Check the main "Other" service checkbox and its text input
+              const mainOtherServiceSelected = sel.some(s => typeof s === 'string' && s.startsWith('Other'));
+              if (mainOtherServiceSelected && !otherTextInput.value.trim()) {
+                  alert('Please describe the "Other" service or uncheck it.');
+                  return;
+              }
+
+              const urlParamValues = Array.from(step1Section.querySelectorAll('input[type="checkbox"]:checked'))
+                                        .map(cb => cb.value)
+                                        .join(',');
+              const otherTextValue = otherTextInput.value.trim();
+              const otherParam = (otherCheckbox.checked && otherTextValue) ? `&otherText=${encodeURIComponent(otherTextValue)}` : '';
+              const url = `${window.location.origin}${window.location.pathname}?selected=${encodeURIComponent(urlParamValues)}${otherParam}#step2`;
+
+              linkOutputDiv.classList.remove('hidden');
+              linkOutputDiv.innerHTML = `<strong>Link for Customer:</strong><br><a href="${url}" target="_blank" style="word-break: break-all;">${url}</a><br><small>(Link copied to clipboard)</small>`;
+
+              navigator.clipboard.writeText(url)
+                  .then(() => showTemporaryMessage('linkCopiedMsg', 'Link copied to clipboard!', 2500))
+                  .catch(err => console.error('Failed to copy link: ', err));
+          });
+      }
+
+      if (gotoStep2Btn) {
+          gotoStep2Btn.addEventListener('click', () => {
+              console.log('gotoStep2Btn clicked.');
+              const sel = getSelectedServices();
+              console.log(`getSelectedServices returned ${sel.length} items.`);
+              if (!sel.length) {
+                  alert('Please select at least one service first.');
+                  return;
+              }
+               // Check the main "Other" service checkbox and its text input specifically if it was the one causing an issue
+              const mainOtherServiceSelected = sel.some(s => typeof s === 'string' && s.startsWith('Other'));
+              if (mainOtherServiceSelected && !otherTextInput.value.trim()) {
+                  alert('Please describe the main "Other" service or uncheck it before proceeding.');
+                  otherTextInput.focus();
+                  return;
+              }
+
+
+              console.log('Calling buildDynamicSections()...');
+              buildDynamicSections(); // Build based on current selections
+              console.log('buildDynamicSections() completed.');
+
+              console.log('Hiding step 1, showing step 2...');
+              step1Section.classList.add('hidden');
+              step2Section.classList.remove('hidden');
+              backToStep1Btn.classList.remove('hidden');
+              console.log('Calling updateStepper(2)...');
+              updateStepper(2);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+              console.log('Transition to step 2 complete.');
+          });
+      }
+
+      if (backToStep1Btn) {
+          backToStep1Btn.addEventListener('click', () => {
+              step2Section.classList.add('hidden');
+              step1Section.classList.remove('hidden');
+              linkOutputDiv.classList.add('hidden');
+              linkCopiedMsgDiv.classList.add('hidden');
+              updateStepper(1);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+          });
+      }
+
+      // ---------- Pre-population & Auto-Proceed (Customer View) ----------
+      if (selectedParam) {
+          const selValues = selectedParam.split(',');
+          step1Section.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+              const isSelected = selValues.includes(cb.value);
+              cb.checked = isSelected;
+              cb.disabled = true;
+              if (cb.id === 'svcOther' && isSelected) { // Check by ID for the main 'Other'
+                  otherTextInput.classList.remove('hidden');
+                  otherTextInput.value = otherTextParam || '';
+                  otherTextInput.readOnly = true;
+              }
+          });
+
+          if(generateLinkBtn) generateLinkBtn.classList.add('hidden');
+          if(gotoStep2Btn) gotoStep2Btn.classList.add('hidden');
+          const step1Header = step1Section.querySelector('h2');
+          if (step1Header) step1Header.innerHTML = '<span class="step-badge">1</span>Services Selected by Dataprise';
+          const step1Para = step1Section.querySelector('p');
+          if (step1Para) step1Para.textContent = 'Please proceed by filling out the technical details below for the services selected by your Dataprise representative.';
+
+          buildDynamicSections();
+          restoreFormProgress();
+
+          step1Section.style.opacity = "0.7";
+          step1Section.style.pointerEvents = "none";
+          step2Section.classList.remove('hidden');
+          if(backToStep1Btn) backToStep1Btn.classList.add('hidden');
+          updateStepper(2); // Make sure stepper is on step 2
+
+          const step2Element = document.getElementById('step2');
+          if (step2Element) {
+              const topPos = step2Element.getBoundingClientRect().top + window.pageYOffset - 20;
+              window.scrollTo({ top: topPos, behavior: 'smooth' });
+          }
+
+      } else {
+          if(backToStep1Btn) backToStep1Btn.classList.add('hidden');
+           restoreFormProgress();
+      }
+
+       if (startOverBtn) {
+            startOverBtn.addEventListener('click', () => {
+                localStorage.removeItem(FORM_STORAGE_KEY);
+                window.location.href = window.location.origin + window.location.pathname;
+            });
+        }
+
+      function restoreFormProgress() {
+          console.log('Attempting to restore form progress...');
+          const savedDataJSON = localStorage.getItem(FORM_STORAGE_KEY);
+          if (!savedDataJSON) {
+              console.log('No saved form data found.');
+              if(saveStatusSpan) saveStatusSpan.textContent = 'No saved draft.';
+              return;
+          }
+
+          let savedData;
+          try {
+              savedData = JSON.parse(savedDataJSON);
+              console.log('Saved data found and parsed:', savedData);
+          } catch (e) {
+              console.error('Error parsing saved form data:', e);
+              localStorage.removeItem(FORM_STORAGE_KEY);
+              if(saveStatusSpan) saveStatusSpan.textContent = 'Error loading draft.';
+              return;
+          }
+
+          const form = document.getElementById('detailsForm');
+          if (!form) {
+              console.error('Details form not found for restoring progress.');
+              return;
+          }
+          
+          // Restore selected services on Step 1 if they were saved (for rep view)
+          if (savedData.selectedServices && !selectedParam) { // Only for rep view
+            const serviceCheckboxes = step1Section.querySelectorAll('input[type="checkbox"]');
+            serviceCheckboxes.forEach(cb => {
+                const isSaved = savedData.selectedServices.some(s => (typeof s === 'object' ? s.value === cb.value : s === cb.value) || (cb.id === 'svcOther' && typeof s === 'string' && s.startsWith('Other:')));
+                cb.checked = isSaved;
+                if (cb.id === 'svcOther' && isSaved) {
+                    const otherServiceData = savedData.selectedServices.find(s => typeof s === 'string' && s.startsWith('Other:'));
+                    if (otherServiceData) {
+                        otherTextInput.value = otherServiceData.substring('Other: '.length).trim();
+                        otherTextInput.classList.remove('hidden');
+                    } else if (savedData.selectedServices.includes('Other')) { // If only "Other" was saved
+                         otherTextInput.classList.remove('hidden');
+                    }
+                }
+            });
+            // Re-build dynamic sections based on restored Step 1 selections
+            buildDynamicSections();
+        }
+
+
+          for (const name in savedData) {
+              if (Object.hasOwnProperty.call(savedData, name)) {
+                  const elements = form.querySelectorAll(`[name="${name}"]`);
+                  if (!elements || elements.length === 0) {
+                      if (name !== 'selectedServices' && name !== 'fullyManagedITServers' && name !== 'managedServers' && name !== 'pcDepot' && name !== 'm365AzureConsulting') {
+                        console.warn(`No form element found for saved field: ${name}`);
+                      }
+                      continue;
+                  }
+
+                  const value = savedData[name];
+                  elements.forEach(element => {
+                      const type = element.type ? element.type.toLowerCase() : element.tagName.toLowerCase();
+                      if (type === 'checkbox') {
+                          if (Array.isArray(value)) {
+                              element.checked = value.includes(element.value);
+                          } else {
+                              element.checked = (value === true || value === 'true' || value === element.value);
+                          }
+                          if (element.id.endsWith('OtherCheck') && element.checked) {
+                              const textInputId = element.id.replace('Check', 'Text');
+                              const textInput = document.getElementById(textInputId);
+                              if (textInput) textInput.classList.remove('hidden');
+                          } else if (element.id.endsWith('OtherCheck') && !element.checked) {
+                              const textInputId = element.id.replace('Check', 'Text');
+                              const textInput = document.getElementById(textInputId);
+                              if (textInput) textInput.classList.add('hidden');
+                          }
+                      } else if (type === 'radio') {
+                          element.checked = (element.value === value);
+                      } else if (type === 'select-one') {
+                          element.value = value;
+                          const otherInputId = element.id + 'Other';
+                          const otherInput = document.getElementById(otherInputId);
+                          if (otherInput) {
+                            toggleOtherInput(element, otherInputId, 'Other'); // Generic 'Other'
+                          }
+                          if (element.id === 'secSIEMExists') {
+                            toggleOtherInput(element, 'secSIEMTool', 'Yes');
+                          }
+                          if (element.id === 'bdrSaaSBackup') {
+                            toggleOtherInput(element, 'bdrSaaSOther', 'Yes - Other SaaS');
+                          }
+                      } else if (type !== 'file') {
+                          element.value = value;
+                      }
+                      if (type === 'select-one' || type === 'checkbox' || type === 'radio' || type === 'text' || type === 'number' || type === 'email' || type === 'textarea') {
+                         element.dispatchEvent(new Event('change', { bubbles: true }));
+                         element.dispatchEvent(new Event('input', { bubbles: true }));
+                      }
+                  });
+              }
+          }
+
+          // Restore dynamic PC Depot fields
+          if (savedData.pcDepot) {
+            console.log('Restoring PC Depot data:', savedData.pcDepot);
+            const pcDepotData = savedData.pcDepot;
+            const pcDepotSectionExists = document.getElementById('PCDepotAutoSection'); // Check if section is rendered
+
+            if (pcDepotSectionExists) {
+                if (document.getElementById('pcDepotTotalDevices')) document.getElementById('pcDepotTotalDevices').value = pcDepotData.totalDevices || '';
+                if (document.getElementById('pcDepotLocationsQty')) document.getElementById('pcDepotLocationsQty').value = pcDepotData.locationsQty || '';
+                if (document.getElementById('pcDepotAvgAge')) document.getElementById('pcDepotAvgAge').value = pcDepotData.avgAge || '';
+                
+                if (pcDepotData.deployMethod) {
+                    const deployRadio = document.querySelector(`input[name="pcDepotDeployMethod"][value="${pcDepotData.deployMethod}"]`);
+                    if (deployRadio) {
+                        deployRadio.checked = true;
+                        deployRadio.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                }
+                if (document.getElementById('pcDepotDeployOtherText')) {
+                    document.getElementById('pcDepotDeployOtherText').value = pcDepotData.deployOtherText || '';
+                    // Visibility of deployOtherText is handled by the radio's change event
+                }
+
+                const mdmCheckbox = document.getElementById('pcDepotMDMNeeded');
+                if (mdmCheckbox) {
+                    mdmCheckbox.checked = pcDepotData.mdmNeeded || false;
+                    mdmCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                if (document.getElementById('pcDepotMobileDeviceCount')) document.getElementById('pcDepotMobileDeviceCount').value = pcDepotData.mobileDeviceCount || '';
+                if (document.getElementById('pcDepotMobileTypes')) document.getElementById('pcDepotMobileTypes').value = pcDepotData.mobileTypes || '';
+
+                const inventoryCheckbox = document.getElementById('pcDepotInventoryNeeded');
+                if (inventoryCheckbox) {
+                    inventoryCheckbox.checked = pcDepotData.inventoryNeeded || false;
+                    inventoryCheckbox.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                if (document.getElementById('pcDepotCurrentInventorySystem')) document.getElementById('pcDepotCurrentInventorySystem').value = pcDepotData.currentInventorySystem || '';
+                if (document.getElementById('pcDepotInventoryNeeds')) document.getElementById('pcDepotInventoryNeeds').value = pcDepotData.inventoryNeeds || '';
+                
+                if (document.getElementById('pcDepotDeviceTypesConfig')) document.getElementById('pcDepotDeviceTypesConfig').value = pcDepotData.deviceTypesConfig || '';
+                if (document.getElementById('pcDepotBreakFixNotes')) document.getElementById('pcDepotBreakFixNotes').value = pcDepotData.breakFixNotes || '';
+            }
+        }
+
+
+          // Restore dynamic server entries
+          if (savedData.fullyManagedITServers && typeof addFmServerEntry === 'function') {
+              console.log('Restoring Fully Managed IT servers:', savedData.fullyManagedITServers);
+              // Clear any default entries first if buildDynamicSections added one
+              const fmContainer = document.getElementById('fmServersListContainer');
+              if (fmContainer) fmContainer.innerHTML = ''; 
+              savedData.fullyManagedITServers.forEach(serverData => addFmServerEntry(serverData));
+          }
+          if (savedData.managedServers && typeof addMsServerEntry === 'function') {
+              console.log('Restoring managed servers:', savedData.managedServers);
+              const msContainer = document.getElementById('msServersListContainer');
+              if (msContainer) msContainer.innerHTML = '';
+              savedData.managedServers.forEach(serverData => addMsServerEntry(serverData));
+          }
+
+
+          if(saveStatusSpan) saveStatusSpan.textContent = 'Draft restored.';
+          console.log('Form progress restored successfully.');
+      }
+
+      function buildDynamicSections() {
+        dynamicSectionsWrapper.innerHTML = ''; 
+        const currentSelections = getSelectedServices(); // Array of {id, value, label} or "Other: text"
+        console.log("Current selections for dynamic sections:", currentSelections);
+
+        const templates = {
+            'Fully Managed IT': () => `
+                <div class="border rounded p-3 mb-4 service-section">
+                  <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-display me-2"></i>Fully Managed IT Details</h3>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <label class="form-label" for="fmWorkstations">Approx. # Workstations</label>
+                      <input type="number" class="form-control data-capture" id="fmWorkstations" name="fmWorkstations" min="0" placeholder="e.g., 50" aria-describedby="fmWorkstationsError"/>
+                       <div class="invalid-feedback" id="fmWorkstationsError">Enter a valid number.</div>
+                    </div>
+                    <div class="col-12">
+                      <h4 class="mt-3 mb-2">Server Details</h4>
+                      <div id="fmServersListContainer"></div>
+                      <button type="button" class="btn btn-outline-primary btn-sm" id="fmAddServerBtn">
+                        <i class="bi bi-plus-circle"></i> Add Server
+                      </button>
+                    </div>
+                    <div class="col-md-4">
+                       <fieldset class="checkbox-group">
+                          <legend class="form-label fs-6">Operating Systems Used</legend>
+                          <div class="form-check">
+                            <input class="form-check-input data-capture" type="checkbox" value="Windows" id="fmOS_Windows" name="fmOS">
+                            <label class="form-check-label" for="fmOS_Windows">Windows</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input data-capture" type="checkbox" value="macOS" id="fmOS_macOS" name="fmOS">
+                            <label class="form-check-label" for="fmOS_macOS">macOS</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input data-capture" type="checkbox" value="Linux" id="fmOS_Linux" name="fmOS">
+                            <label class="form-check-label" for="fmOS_Linux">Linux</label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input data-capture" type="checkbox" id="fmOS_OtherCheck" name="fmOS_OtherCheck" value="OtherOS">
+                            <label class="form-check-label" for="fmOS_OtherCheck">Other</label>
+                          </div>
+                           <input type="text" id="fmOS_OtherText" name="fmOS_OtherText" class="form-control form-control-sm other-input hidden mt-1 data-capture" placeholder="Specify other OS" aria-describedby="fmOS_OtherTextError" />
+                           <div class="invalid-feedback" id="fmOS_OtherTextError">Please specify the OS.</div>
+                      </fieldset>
+                    </div>
+                    <div class="col-12">
+                       <label class="form-label" for="fmApps">Key Business Applications</label>
+                       <textarea class="form-control data-capture" id="fmApps" name="fmApps" rows="2" placeholder="e.g., QuickBooks, Salesforce, Custom App X"></textarea>
+                       <div class="form-text">List major software critical to operations.</div>
+                    </div>
+                  </div>
+                </div>`,
+            'Managed Server': () => `
+                      <div class="border rounded p-3 mb-4 service-section">
+                        <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-server me-2"></i>Managed Server Details</h3>
+                        <div class="row g-3">
+                          <div class="col-12">
+                            <h4 class="mt-3 mb-2">Server Inventory</h4>
+                            <div id="msServersListContainer">
+                            </div>
+                            <button type="button" class="btn btn-sm btn-outline-primary mt-2" id="msAddServerBtn">
+                              <i class="bi bi-plus-circle"></i> Add Server to Managed List
+                            </button>
+                          </div>
+                        </div>
+                      </div>`,
+            'Service Desk': () => `
+                      <div class="border rounded p-3 mb-4 service-section">
+                        <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-headset me-2"></i>Service Desk Details</h3>
+                        <div class="row g-3">
+                          <div class="col-md-6">
+                            <label class="form-label" for="sdTickets">Estimated Monthly Ticket Volume</label>
+                            <input type="number" class="form-control data-capture" id="sdTickets" name="sdTickets" min="0" placeholder="e.g., 150" aria-describedby="sdTicketsError"/>
+                             <div class="invalid-feedback" id="sdTicketsError">Enter a valid number.</div>
+                          </div>
+                           <div class="col-md-6">
+                            <label class="form-label" for="sdCoverageHours">Required Support Coverage</label>
+                             <select class="form-select data-capture has-other-option" id="sdCoverageHours" name="sdCoverageHours" aria-describedby="sdCoverageHoursError sdCoverageHoursOtherError">
+                              <option value="" selected disabled>Select hours...</option>
+                              <option>Business Hours (e.g., 8x5 Mon-Fri)</option>
+                              <option>Extended Hours (e.g., 12x5 Mon-Fri)</option>
+                              <option>24x7x365</option>
+                              <option value="Other">Other (Specify)</option>
+                            </select>
+                            <div class="invalid-feedback" id="sdCoverageHoursError">Select coverage hours.</div>
+                             <input type="text" id="sdCoverageHoursOther" name="sdCoverageHoursOther" class="form-control form-control-sm other-input hidden mt-1 data-capture" placeholder="Specify coverage hours/days" aria-describedby="sdCoverageHoursOtherError"/>
+                             <div class="invalid-feedback" id="sdCoverageHoursOtherError">Please specify coverage.</div>
+                          </div>
+                           <div class="col-md-12">
+                              <fieldset class="checkbox-group">
+                                  <legend class="form-label">Current Support Methods (Check all that apply)</legend>
+                                   <div class="form-check form-check-inline">
+                                      <input class="form-check-input data-capture" type="checkbox" id="sdMethodEmail" value="Email" name="sdCurrentMethods">
+                                      <label class="form-check-label" for="sdMethodEmail">Email</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                      <input class="form-check-input data-capture" type="checkbox" id="sdMethodPhone" value="Phone" name="sdCurrentMethods">
+                                      <label class="form-check-label" for="sdMethodPhone">Phone</label>
+                                    </div>
+                                     <div class="form-check form-check-inline">
+                                      <input class="form-check-input data-capture" type="checkbox" id="sdMethodPortal" value="Portal/Web Form" name="sdCurrentMethods">
+                                      <label class="form-check-label" for="sdMethodPortal">Portal/Web Form</label>
+                                    </div>
+                                     <div class="form-check form-check-inline">
+                                      <input class="form-check-input data-capture" type="checkbox" id="sdMethodChat" value="Chat" name="sdCurrentMethods">
+                                      <label class="form-check-label" for="sdMethodChat">Chat</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                      <input class="form-check-input data-capture" type="checkbox" id="sdMethodInPerson" value="In Person" name="sdCurrentMethods">
+                                      <label class="form-check-label" for="sdMethodInPerson">In Person</label>
+                                    </div>
+                                     <div class="form-check form-check-inline">
+                                      <input class="form-check-input data-capture" type="checkbox" id="sdMethodOtherCheck" value="Other" name="sdMethodOtherCheck">
+                                      <label class="form-check-label" for="sdMethodOtherCheck">Other</label>
+                                    </div>
+                                     <input type="text" id="sdMethodOtherText" name="sdMethodOtherText" class="form-control form-control-sm other-input hidden mt-2 data-capture" placeholder="Specify other method" aria-describedby="sdMethodOtherTextError"/>
+                                     <div class="invalid-feedback" id="sdMethodOtherTextError">Please specify the method.</div>
+                              </fieldset>
+                          </div>
+                        </div>
+                      </div>`,
+                  'Cybersecurity Monitoring (SIEM)': () => `
+                      <div class="border rounded p-3 mb-4 service-section">
+                        <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-shield-lock me-2"></i>Cybersecurity Monitoring (SIEM)</h3>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                              <label class="form-label" for="secSIEMExists">Existing SIEM Solution?</label>
+                               <select class="form-select data-capture" id="secSIEMExists" name="secSIEMExists" aria-describedby="secSIEMExistsError secSIEMToolError">
+                                 <option value="" selected disabled>Select...</option>
+                                 <option value="Yes">Yes (Specify Tool)</option>
+                                 <option value="No">No</option>
+                                 <option value="Unsure">Unsure</option>
+                               </select>
+                                <div class="invalid-feedback" id="secSIEMExistsError">Select an option.</div>
+                               <input type="text" id="secSIEMTool" name="secSIEMTool" class="form-control form-control-sm other-input hidden mt-1 data-capture" placeholder="Specify SIEM tool (e.g., Splunk, Sentinel)" aria-describedby="secSIEMToolError"/>
+                                <div class="invalid-feedback" id="secSIEMToolError">Please specify the SIEM tool.</div>
+                            </div>
+                             <div class="col-md-6">
+                              <label class="form-label" for="secEndpoints">Approx. # Endpoints (Workstations+Servers) for EDR/Monitoring</label>
+                              <input type="number" class="form-control data-capture" id="secEndpoints" name="secEndpoints" min="0" placeholder="Total devices for EDR" aria-describedby="secEndpointsError"/>
+                               <div class="invalid-feedback" id="secEndpointsError">Enter a valid number.</div>
+                            </div>
+                            <div class="col-12">
+                               <label class="form-label" for="secLogSources">Key Log Sources to Monitor</label>
+                               <textarea class="form-control data-capture" id="secLogSources" name="secLogSources" rows="2" placeholder="e.g., Firewalls, Servers (Windows/Linux), Endpoints (EDR logs), M365 Audit Logs, VPN Logs, Critical Applications"></textarea>
+                               <div class="field-note">List specific systems or log types essential for monitoring.</div>
+                            </div>
+                        </div>
+                      </div>`,
+                  'Backup & Disaster Recovery': () => `
+                        <div class="border rounded p-3 mb-4 service-section">
+                          <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-cloud-arrow-up me-2"></i>Backup & Disaster Recovery</h3>
+                          <div class="row g-3">
+                            <div class="col-md-6">
+                              <label class="form-label" for="bdrTB">Total Data Size to Backup (TB)</label>
+                              <input type="number" class="form-control data-capture" id="bdrTB" name="bdrTB" step="0.1" min="0" placeholder="e.g., 2.5" aria-describedby="bdrTBError"/>
+                               <div class="invalid-feedback" id="bdrTBError">Enter a valid size in TB (e.g., 2.5).</div>
+                            </div>
+                             <div class="col-md-6">
+                              <label class="form-label" for="bdrCurrentSolution">Current Backup Solution</label>
+                              <select class="form-select data-capture has-other-option" id="bdrCurrentSolution" name="bdrCurrentSolution" aria-describedby="bdrCurrentSolutionError bdrCurrentSolutionOtherError">
+                                  <option value="" selected disabled>Select solution...</option>
+                                  <option>Veeam</option>
+                                  <option>Datto</option>
+                                  <option>Commvault</option>
+                                  <option>Rubrik</option>
+                                  <option>Cohesity</option>
+                                  <option>Azure Backup</option>
+                                  <option>AWS Backup</option>
+                                  <option>Acronis</option>
+                                  <option>None / Manual</option>
+                                  <option value="Other">Other (Specify)</option>
+                              </select>
+                              <div class="invalid-feedback" id="bdrCurrentSolutionError">Select a solution or 'None'.</div>
+                               <input type="text" id="bdrCurrentSolutionOther" name="bdrCurrentSolutionOther" class="form-control form-control-sm other-input hidden mt-1 data-capture" placeholder="Specify backup tool" aria-describedby="bdrCurrentSolutionOtherError"/>
+                               <div class="invalid-feedback" id="bdrCurrentSolutionOtherError">Please specify the tool.</div>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label" for="bdrRTO">Required RTO (Recovery Time Objective)</label>
+                               <select class="form-select data-capture" id="bdrRTO" name="bdrRTO">
+                                  <option value="" selected disabled>Select target time...</option>
+                                  <option>&lt; 1 Hour</option>
+                                  <option>1 - 4 Hours</option>
+                                  <option>4 - 8 Hours</option>
+                                  <option>8 - 24 Hours</option>
+                                  <option>&gt; 24 Hours</option>
+                                  <option>Best Effort / Not Defined</option>
+                              </select>
+                            </div>
+                             <div class="col-md-6">
+                              <label class="form-label" for="bdrRPO">Required RPO (Data Loss Tolerance)</label>
+                               <select class="form-select data-capture" id="bdrRPO" name="bdrRPO">
+                                  <option value="" selected disabled>Select tolerance...</option>
+                                  <option>&lt; 15 Minutes</option>
+                                  <option>15 - 60 Minutes</option>
+                                  <option>1 - 4 Hours</option>
+                                  <option>4 - 12 Hours</option>
+                                  <option>12 - 24 Hours</option>
+                                  <option>&gt; 24 Hours</option>
+                                   <option>Best Effort / Not Defined</option>
+                              </select>
+                            </div>
+                             <div class="col-12">
+                               <label class="form-label" for="bdrSaaSBackup">Backup needed for SaaS platforms?</label>
+                               <select class="form-select data-capture" id="bdrSaaSBackup" name="bdrSaaSBackup" aria-describedby="bdrSaaSOtherError">
+                                 <option value="" selected disabled>Select...</option>
+                                 <option value="Yes - Microsoft 365">Yes - Microsoft 365 (Email, OneDrive, SharePoint)</option>
+                                 <option value="Yes - Google Workspace">Yes - Google Workspace (Gmail, Drive)</option>
+                                 <option value="Yes - Both M365 & Google">Yes - Both M365 & Google</option>
+                                 <option value="Yes - Other SaaS">Yes - Other SaaS (Specify Below)</option>
+                                 <option value="No">No SaaS Backup Needed</option>
+                                 <option value="Unsure">Unsure</option>
+                               </select>
+                                <input type="text" id="bdrSaaSOther" name="bdrSaaSOther" class="form-control form-control-sm other-input hidden mt-1 data-capture" placeholder="Specify other SaaS platform needing backup" aria-describedby="bdrSaaSOtherError"/>
+                                <div class="invalid-feedback" id="bdrSaaSOtherError">Please specify the SaaS platform.</div>
+                             </div>
+                          </div>
+                        </div>`,
+                    'Infrastructure': () => `
+                        <div class="border rounded p-3 mb-4 service-section">
+                          <h3 class="mt-0 mb-3 text-primary"><i class="bi bi-hdd-network me-2"></i>Infrastructure Details</h3>
+                          <div class="row g-3">
+                            <div class="col-md-6">
+                              <label class="form-label" for="infraNetwork">Network Infrastructure (e.g., switches, routers, firewalls)</label>
+                              <textarea class="form-control data-capture" id="infraNetwork" name="infraNetwork" rows="2" placeholder="Describe network infrastructure"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label" for="infraServers">Server Infrastructure (e.g., virtualization, clustering)</label>
+                              <textarea class="form-control data-capture" id="infraServers" name="infraServers" rows="2" placeholder="Describe server infrastructure"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label" for="infraStorage">Storage Infrastructure (e.g., SAN, NAS, cloud storage)</label>
+                              <textarea class="form-control data-capture" id="infraStorage" name="infraStorage" rows="2" placeholder="Describe storage infrastructure"></textarea>
+                            </div>
+                            <div class="col-md-6">
+                              <label class="form-label" for="infraOther">Other Infrastructure (e.g., cloud services, IoT)</label>
+                              <textarea class="form-control data-capture" id="infraOther" name="infraOther" rows="2" placeholder="Describe other infrastructure"></textarea>
+                            </div>
+                          </div>
+                        </div>`,
+                    'PC Depot': () => `
+        <div class="border rounded p-3 mb-4 service-section" id="PCDepotAutoSection">
+            <h3 class="mt-0 mb-3 text-warning"><i class="bi bi-tools me-2"></i>PC Depot / Break-Fix</h3>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label" for="pcDepotTotalDevices">Approx. Total # Endpoints (PCs, Laptops)</label>
+                    <input type="number" class="form-control data-capture" id="pcDepotTotalDevices" name="pcDepotTotalDevices" min="0" placeholder="e.g., 100">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="pcDepotLocationsQty"># Serviced Locations</label>
+                    <input type="number" class="form-control data-capture" id="pcDepotLocationsQty" name="pcDepotLocationsQty" min="0" placeholder="e.g., 3">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" for="pcDepotAvgAge">Avg. Age of Endpoints (Years)</label>
+                    <input type="number" class="form-control data-capture" id="pcDepotAvgAge" name="pcDepotAvgAge" min="0" step="0.5" placeholder="e.g., 3.5">
+                </div>
+
+                <div class="col-12 mt-4">
+                    <h5 class="text-secondary">Endpoint Deployment</h5>
+                    <label class="form-label">Primary Deployment Method:</label>
+                    <div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input data-capture" type="radio" name="pcDepotDeployMethod" id="pcDepotDeployAutoPilot" value="Windows Autopilot">
+                            <label class="form-check-label" for="pcDepotDeployAutoPilot">Windows Autopilot</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input data-capture" type="radio" name="pcDepotDeployMethod" id="pcDepotDeployImage" value="Image-based">
+                            <label class="form-check-label" for="pcDepotDeployImage">Image-based (e.g., SCCM, MDT)</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input data-capture" type="radio" name="pcDepotDeployMethod" id="pcDepotDeployManual" value="Manual">
+                            <label class="form-check-label" for="pcDepotDeployManual">Manual / Ad-hoc</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input data-capture" type="radio" name="pcDepotDeployMethod" id="pcDepotDeployOtherRadio" value="Other">
+                            <label class="form-check-label" for="pcDepotDeployOtherRadio">Other</label>
+                        </div>
+                        <input type="text" class="form-control form-control-sm mt-1 other-input hidden data-capture" id="pcDepotDeployOtherText" name="pcDepotDeployOtherText" placeholder="Specify other deployment method">
+                    </div>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <h5 class="text-secondary">Mobile Devices</h5>
+                    <div class="form-check">
+                        <input class="form-check-input data-capture" type="checkbox" id="pcDepotMDMNeeded" name="pcDepotMDMNeeded">
+                        <label class="form-check-label" for="pcDepotMDMNeeded">
+                            Mobile Device Management (MDM) / Mobile Application Management (MAM) required?
+                        </label>
+                    </div>
+                    <div id="pcDepotMobileDetailsContainer" class="row g-3 mt-1 ps-3 hidden">
+                        <div class="col-md-4">
+                            <label class="form-label form-label-sm" for="pcDepotMobileDeviceCount">Approx. # Mobile Devices</label>
+                            <input type="number" class="form-control form-control-sm data-capture" id="pcDepotMobileDeviceCount" name="pcDepotMobileDeviceCount" min="0" placeholder="e.g., 25">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label form-label-sm" for="pcDepotMobileTypes">Types of Mobile Devices & OS (comma separated)</label>
+                            <input type="text" class="form-control form-control-sm data-capture" id="pcDepotMobileTypes" name="pcDepotMobileTypes" placeholder="e.g., iPhones (iOS), Samsung Tablets (Android), Scanners (Android)">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 mt-4">
+                    <h5 class="text-secondary">Inventory Management</h5>
+                    <div class="form-check">
+                        <input class="form-check-input data-capture" type="checkbox" id="pcDepotInventoryNeeded" name="pcDepotInventoryNeeded">
+                        <label class="form-check-label" for="pcDepotInventoryNeeded">
+                            Asset Inventory Management for endpoints required?
+                        </label>
+                    </div>
+                    <div id="pcDepotInventoryDetailsContainer" class="row g-3 mt-1 ps-3 hidden">
+                        <div class="col-md-6">
+                            <label class="form-label form-label-sm" for="pcDepotCurrentInventorySystem">Current Inventory System (if any)</label>
+                            <input type="text" class="form-control form-control-sm data-capture" id="pcDepotCurrentInventorySystem" name="pcDepotCurrentInventorySystem" placeholder="e.g., Snipe-IT, Excel, None">
+                        </div>
+                         <div class="col-md-6">
+                            <label class="form-label form-label-sm" for="pcDepotInventoryNeeds">Key Inventory Tracking Needs</label>
+                            <input type="text" class="form-control form-control-sm data-capture" id="pcDepotInventoryNeeds" name="pcDepotInventoryNeeds" placeholder="e.g., Hardware specs, Software licenses, Purchase dates">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 mt-4">
+                    <label class="form-label" for="pcDepotDeviceTypesConfig">Detailed Device Types & Configurations</label>
+                    <textarea class="form-control data-capture" id="pcDepotDeviceTypesConfig" name="pcDepotDeviceTypesConfig" rows="3" placeholder="e.g., Standard User Desktop: Dell OptiPlex, Core i5, 8GB RAM, 256GB SSD. Power User Laptop: MacBook Pro 16-inch, M1 Pro, 16GB RAM, 512GB SSD. List any specialized hardware."></textarea>
+                    <div class="field-note">Provide a breakdown of common device types, their typical configurations, and quantities if known.</div>
+                </div>
+
+                <div class="col-12 mt-3">
+                    <label class="form-label" for="pcDepotBreakFixNotes">Specific Break-Fix Needs/Notes</label>
+                    <textarea class="form-control data-capture" id="pcDepotBreakFixNotes" name="pcDepotBreakFixNotes" rows="2" placeholder="e.g., Hardware repair (desktops, laptops), software troubleshooting, peripheral setup, loaner pool management, imaging/re-imaging tasks."></textarea>
+                </div>
+            </div>
+        </div>`,
+                    'Other': () => `
+                 <div class="border rounded p-3 mb-4 service-section">
+                     <h3 class="mt-0 mb-3 text-info"><i class="bi bi-gear-wide-connected me-2"></i>Other Service Details</h3>
+                     <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label" for="otherServiceName">Service Name</label>
+                            <input type="text" class="form-control data-capture" id="otherServiceName" name="otherServiceName" placeholder="Specify the name of the other service" value="${otherTextInput.value.trim()}">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="otherServiceDetails">Details and Requirements</label>
+                            <textarea class="form-control data-capture" id="otherServiceDetails" name="otherServiceDetails" rows="3" placeholder="Describe the service, key components, number of users/devices if applicable, and any specific requirements."></textarea>
+                        </div>
+                     </div>
+                 </div>`
+        };
+
+        const bgColors = ['section-bg-1', 'section-bg-2', 'section-bg-3', 'section-bg-4', 'section-bg-5'];
+        let colorIndex = 0;
+
+        currentSelections.forEach(svc => {
+            let templateKey = typeof svc === 'object' ? svc.value : (svc.startsWith('Other:') ? 'Other' : svc);
+            if (templates[templateKey]) {
+                const sectionHTML = templates[templateKey]();
+                const sectionDiv = document.createElement('div');
+                sectionDiv.id = (templateKey.replace(/[^a-zA-Z0-9]/g, '') + 'AutoSectionWrapper');
+                sectionDiv.innerHTML = sectionHTML;
+                const serviceSectionDiv = sectionDiv.querySelector('.service-section') || sectionDiv;
+                serviceSectionDiv.classList.add(bgColors[colorIndex % bgColors.length]);
+                dynamicSectionsWrapper.appendChild(serviceSectionDiv);
+                colorIndex++;
+            } else {
+                console.warn(`No template found for service: ${templateKey}`);
+                const sectionDiv = document.createElement('div');
+                const safeId = (typeof svc === 'object' ? svc.value : svc).replace(/[^a-zA-Z0-9]/g, '');
+                sectionDiv.id = (safeId + 'AutoSectionWrapper');
+                sectionDiv.innerHTML = `
+                    <div class="border rounded p-3 mb-4 service-section ${bgColors[colorIndex % bgColors.length]}">
+                      <h3 class="mt-0 mb-3 text-warning"><i class="bi bi-exclamation-triangle me-2"></i>Details for: ${(typeof svc === 'object' ? svc.label : svc).replace(/</g, "&lt;").replace(/>/g, "&gt;")}</h3>
+                      <p class="text-muted">No specific form fields defined for this service. Please use the 'Helpful Supporting Documents' section to upload relevant files, or if this is the 'Other' specified service, detail it in its own section if available.</p>
+                    </div>`;
+                dynamicSectionsWrapper.appendChild(sectionDiv);
+                colorIndex++;
+            }
+        });
+
+        // === Special Handling AFTER all dynamic sections are built ===
+        const currentServiceValues = currentSelections.map(s => typeof s === 'object' ? s.value : (s.startsWith('Other:') ? 'Other' : s));
+
+        if (currentServiceValues.includes('Fully Managed IT')) {
+            const fmOSOtherCheck = document.getElementById('fmOS_OtherCheck');
+            if (fmOSOtherCheck) {
+                fmOSOtherCheck.addEventListener('change', () => toggleOtherInputCheckbox(fmOSOtherCheck, 'fmOS_OtherText'));
+                toggleOtherInputCheckbox(fmOSOtherCheck, 'fmOS_OtherText');
+            }
+            const addServerBtn = document.getElementById('fmAddServerBtn');
+            if (addServerBtn) {
+                addServerBtn.addEventListener('click', () => addFmServerEntry());
+            }
+            const serverEntriesContainer = document.getElementById('fmServersListContainer');
+            if (serverEntriesContainer && serverEntriesContainer.children.length === 0 && !localStorage.getItem(FORM_STORAGE_KEY)) { // Only add default if empty and no saved data
+                 addFmServerEntry();
+            }
+        }
+
+        dynamicSectionsWrapper.querySelectorAll('select.has-other-option').forEach(select => {
+            const otherInputId = select.id + 'Other';
+            if (document.getElementById(otherInputId)) {
+                select.addEventListener('change', () => toggleOtherInput(select, otherInputId, 'Other'));
+                toggleOtherInput(select, otherInputId, 'Other');
+            }
+        });
+        const secSIEMExistsSelect = document.getElementById('secSIEMExists');
+        if (secSIEMExistsSelect) {
+             secSIEMExistsSelect.addEventListener('change', () => toggleOtherInput(secSIEMExistsSelect, 'secSIEMTool', 'Yes'));
+             toggleOtherInput(secSIEMExistsSelect, 'secSIEMTool', 'Yes');
+        }
+        const bdrSaaSBackupSelect = document.getElementById('bdrSaaSBackup');
+        if (bdrSaaSBackupSelect) {
+             bdrSaaSBackupSelect.addEventListener('change', () => toggleOtherInput(bdrSaaSBackupSelect, 'bdrSaaSOther', 'Yes - Other SaaS'));
+             toggleOtherInput(bdrSaaSBackupSelect, 'bdrSaaSOther', 'Yes - Other SaaS');
+        }
+        const sdMethodOtherCheck = document.getElementById('sdMethodOtherCheck');
+        if(sdMethodOtherCheck){
+            sdMethodOtherCheck.addEventListener('change', () => toggleOtherInputCheckbox(sdMethodOtherCheck, 'sdMethodOtherText'));
+            toggleOtherInputCheckbox(sdMethodOtherCheck, 'sdMethodOtherText');
+        }
+
+
+        if (currentServiceValues.includes('Managed Server')) {
+            const addMsServerBtn = document.getElementById('msAddServerBtn');
+            if (addMsServerBtn) {
+                addMsServerBtn.addEventListener('click', () => addMsServerEntry());
+            }
+            const msServerEntriesContainer = document.getElementById('msServersListContainer');
+            if (msServerEntriesContainer && msServerEntriesContainer.children.length === 0 && !localStorage.getItem(FORM_STORAGE_KEY)) {
+                 addMsServerEntry();
+            }
+        }
+
+        if (currentServiceValues.includes('PC Depot')) {
+            const pcDepotMDMNeededCheckbox = document.getElementById('pcDepotMDMNeeded');
+            const pcDepotMobileDetailsContainer = document.getElementById('pcDepotMobileDetailsContainer');
+            if (pcDepotMDMNeededCheckbox && pcDepotMobileDetailsContainer) {
+                pcDepotMDMNeededCheckbox.addEventListener('change', function() {
+                    pcDepotMobileDetailsContainer.classList.toggle('hidden', !this.checked);
+                });
+                pcDepotMobileDetailsContainer.classList.toggle('hidden', !pcDepotMDMNeededCheckbox.checked);
+            }
+
+            const pcDepotInventoryNeededCheckbox = document.getElementById('pcDepotInventoryNeeded');
+            const pcDepotInventoryDetailsContainer = document.getElementById('pcDepotInventoryDetailsContainer');
+            if (pcDepotInventoryNeededCheckbox && pcDepotInventoryDetailsContainer) {
+                pcDepotInventoryNeededCheckbox.addEventListener('change', function() {
+                    pcDepotInventoryDetailsContainer.classList.toggle('hidden', !this.checked);
+                });
+                pcDepotInventoryDetailsContainer.classList.toggle('hidden', !pcDepotInventoryNeededCheckbox.checked);
+            }
+
+            const pcDepotDeployMethodRadios = document.querySelectorAll('input[name="pcDepotDeployMethod"]');
+            const pcDepotDeployOtherText = document.getElementById('pcDepotDeployOtherText');
+            if (pcDepotDeployMethodRadios.length > 0 && pcDepotDeployOtherText) {
+                pcDepotDeployMethodRadios.forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const showOther = this.id === 'pcDepotDeployOtherRadio' && this.checked;
+                        pcDepotDeployOtherText.classList.toggle('hidden', !showOther);
+                        pcDepotDeployOtherText.required = showOther;
+                        if (!showOther) pcDepotDeployOtherText.value = '';
+                        else pcDepotDeployOtherText.focus();
+                    });
+                });
+                const checkedRadio = document.querySelector('input[name="pcDepotDeployMethod"]:checked');
+                if (checkedRadio && checkedRadio.id === 'pcDepotDeployOtherRadio') {
+                    pcDepotDeployOtherText.classList.remove('hidden');
+                    pcDepotDeployOtherText.required = true;
+                } else {
+                    pcDepotDeployOtherText.classList.add('hidden');
+                    pcDepotDeployOtherText.required = false;
+                }
+            }
+        }
+        // Call restoreFormProgress again AFTER dynamic sections are fully built and event listeners attached,
+        // but only if not in customer view (where it's called after pre-population)
+        if (!selectedParam && typeof restoreFormProgress === 'function') {
+             // restoreFormProgress(); // This might be too much, as the main call handles it.
+                                 // The initial call to restoreFormProgress should be sufficient.
+        }
+    }
+
+      if (detailsForm) {
+           detailsForm.addEventListener('change', (event) => {
+              const target = event.target;
+              if (target.tagName === 'SELECT') {
+                  const otherInputId = target.id + 'Other';
+                  if (document.getElementById(otherInputId) && target.classList.contains('has-other-option')) {
+                      toggleOtherInput(target, otherInputId, 'Other');
+                  }
+                  if (target.id === 'secSIEMExists') toggleOtherInput(target, 'secSIEMTool', 'Yes');
+                  if (target.id === 'bdrSaaSBackup') toggleOtherInput(target, 'bdrSaaSOther', 'Yes - Other SaaS');
+                  if (target.id.startsWith('msServerOS_') && (target.value === 'Other Linux' || target.value === 'Other OS') ) {
+                      toggleOtherInput(target, target.id + 'Other', ['Other Linux', 'Other OS']);
+                  }
+              }
+              if (target.type === 'checkbox' && target.id.endsWith('OtherCheck')) { // e.g. fmOS_OtherCheck
+                  const otherInputId = target.id.replace('Check', 'Text');
+                   if (document.getElementById(otherInputId)) {
+                       toggleOtherInputCheckbox(target, otherInputId);
+                   }
+              }
+               if (target.name === 'pcDepotDeployMethod' && target.type === 'radio') {
+                    const otherText = document.getElementById('pcDepotDeployOtherText');
+                    if (otherText) {
+                        const show = target.id === 'pcDepotDeployOtherRadio' && target.checked;
+                        otherText.classList.toggle('hidden', !show);
+                        otherText.required = show;
+                        if (!show) otherText.value = ''; else otherText.focus();
+                    }
+                }
+           });
+      }
+
+
+      const debouncedSave = debounce(() => {
+          if (!detailsForm) return;
+          try {
+              const formData = new FormData(detailsForm);
+              const dataToSave = {};
+               detailsForm.querySelectorAll('input:not([type="file"]), select, textarea').forEach(input => {
+                   const name = input.name;
+                   if (!name) return;
+                    if (input.type === 'checkbox') {
+                         if (!dataToSave[name]) dataToSave[name] = [];
+                        if (input.checked) {
+                            if(input.id.endsWith('OtherCheck')) { // e.g. fmOS_OtherCheck
+                                dataToSave[name + '_checked'] = true;
+                            } else if (input.name === 'fmOS' || input.name === 'sdCurrentMethods') { // Handle specific checkbox groups
+                                dataToSave[name].push(input.value);
+                            } else { // Single named checkboxes
+                                dataToSave[name] = input.checked;
+                            }
+                        } else if (input.name === 'fmOS' || input.name === 'sdCurrentMethods'){
+                            // For checkbox groups, ensure unchecked are not in the array implicitly
+                        } else {
+                             dataToSave[name] = input.checked; // Save false for single named checkboxes
+                        }
+                    } else if (input.type === 'radio') {
+                        if (input.checked) {
+                            dataToSave[name] = input.value;
+                        }
+                    } else {
+                        dataToSave[name] = input.value;
+                    }
+                  });
+              
+              const currentSelectedServices = getSelectedServices();
+              dataToSave.selectedServices = currentSelectedServices; // Save the array of objects/strings
+
+              if (currentSelectedServices.some(s => (typeof s === 'object' ? s.value : s) === 'Fully Managed IT')) {
+                  const fmServersData = [];
+                  document.querySelectorAll('#fmServersListContainer .fm-server-entry').forEach(entry => {
+                      fmServersData.push({
+                          name: entry.querySelector('[id^=fmServerName_]')?.value || '',
+                          location: entry.querySelector('[id^=fmServerLocation_]')?.value || '',
+                          role: entry.querySelector('[id^=fmServerRole_]')?.value || '',
+                          os: entry.querySelector('[id^=fmServerOS_]')?.value || '',
+                          type: entry.querySelector('[id^=fmServerType_]')?.value || '',
+                          specs: entry.querySelector('[id^=fmServerSpecs_]')?.value || ''
+                      });
+                  });
+                  dataToSave.fullyManagedITServers = fmServersData;
+              }
+
+              if (currentSelectedServices.some(s => (typeof s === 'object' ? s.value : s) === 'Managed Server')) {
+                  const msServersData = [];
+                  document.querySelectorAll('#msServersListContainer .fm-server-entry').forEach(entry => {
+                      const osSelect = entry.querySelector('[id^=msServerOS_]:not([id$=Other])');
+                      let osOtherTextVal = '';
+                      if (osSelect && (osSelect.value === 'Other Linux' || osSelect.value === 'Other OS')) {
+                          const otherInput = entry.querySelector(`#${osSelect.id}Other`);
+                          osOtherTextVal = otherInput ? otherInput.value : '';
+                      }
+                      msServersData.push({
+                          name: entry.querySelector('[id^=msServerName_]')?.value || '',
+                          location: entry.querySelector('[id^=msServerLocation_]')?.value || '',
+                          role: entry.querySelector('[id^=msServerRole_]')?.value || '',
+                          os: osSelect?.value || '',
+                          osOtherText: osOtherTextVal,
+                          type: entry.querySelector('[id^=msServerType_]')?.value || '',
+                          specs: entry.querySelector('[id^=msServerSpecs_]')?.value || ''
+                      });
+                  });
+                  dataToSave.managedServers = msServersData;
+              }
+
+              if (currentSelectedServices.some(s => (typeof s === 'object' ? s.value : s) === 'PC Depot')) {
+                  dataToSave.pcDepot = {
+                      totalDevices: getInputValue('pcDepotTotalDevices'),
+                      locationsQty: getInputValue('pcDepotLocationsQty'),
+                      avgAge: getInputValue('pcDepotAvgAge'),
+                      deployMethod: getRadioValue('pcDepotDeployMethod'),
+                      deployOtherText: getInputValue('pcDepotDeployOtherText'),
+                      mdmNeeded: getCheckboxValue('pcDepotMDMNeeded'),
+                      mobileDeviceCount: getInputValue('pcDepotMobileDeviceCount'),
+                      mobileTypes: getInputValue('pcDepotMobileTypes'),
+                      inventoryNeeded: getCheckboxValue('pcDepotInventoryNeeded'),
+                      currentInventorySystem: getInputValue('pcDepotCurrentInventorySystem'),
+                      inventoryNeeds: getInputValue('pcDepotInventoryNeeds'),
+                      deviceTypesConfig: getInputValue('pcDepotDeviceTypesConfig'),
+                      breakFixNotes: getInputValue('pcDepotBreakFixNotes')
+                  };
+              }
+
+              localStorage.setItem(FORM_STORAGE_KEY, JSON.stringify(dataToSave));
+              if(saveStatusSpan) {
+                  saveStatusSpan.textContent = `Draft saved ✓ (${new Date().toLocaleTimeString()})`;
+                  setTimeout(() => { if(saveStatusSpan && saveStatusSpan.textContent.startsWith('Draft saved')) saveStatusSpan.textContent = ''; }, 3000);
+              }
+          } catch (error) {
+              console.error("Error saving form data to localStorage:", error);
+               if(saveStatusSpan) saveStatusSpan.textContent = 'Error saving draft.';
+          }
+      }, SAVE_DEBOUNCE_MS);
+
+      if (detailsForm) {
+          detailsForm.addEventListener('input', debouncedSave);
+          detailsForm.addEventListener('change', debouncedSave);
+      }
+      if (clearDraftBtn) {
+        clearDraftBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear your saved draft? This cannot be undone.')) {
+                localStorage.removeItem(FORM_STORAGE_KEY);
+                // Optionally, reset the form to its initial state or reload the page
+                // detailsForm.reset(); // This might not clear dynamically added elements well
+                // buildDynamicSections(); // Rebuild to clear dynamic content
+                // restoreFormProgress(); // Will show "no draft"
+                window.location.reload(); // Simplest way to ensure a clean slate
+                if(saveStatusSpan) saveStatusSpan.textContent = 'Draft cleared.';
+            }
+        });
+    }
+
+
+      function validateForm() {
+          let isValid = true;
+          detailsForm.classList.remove('was-validated');
+          detailsForm.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+          detailsForm.querySelectorAll('.invalid-feedback').forEach(el => el.textContent = el.dataset.defaultError || '');
+          formErrorSummaryDiv.classList.add('hidden');
+          errorListUl.innerHTML = '';
+          const errors = [];
+
+          detailsForm.querySelectorAll('input[required], select[required], textarea[required]').forEach(input => {
+              input.classList.remove('is-invalid');
+              input.removeAttribute('aria-invalid');
+              const errorFeedbackEl = document.getElementById(input.getAttribute('aria-describedby')?.split(' ')[0]);
+              if (errorFeedbackEl && !errorFeedbackEl.dataset.defaultError) {
+                 errorFeedbackEl.dataset.defaultError = errorFeedbackEl.textContent;
+              }
+
+              let fieldValid = true;
+              if (input.disabled || input.closest('.hidden')) { // Skip disabled or hidden required fields
+                  fieldValid = true; // Treat as valid for this check
+              } else if (input.tagName === 'SELECT' && input.value === '') {
+                  fieldValid = false;
+              } else if (input.type === 'checkbox' && !input.checked) {
+                   // Only specific required checkboxes would fail here. Most are group validated or optional.
+                   // Example: if a consent checkbox with 'required' was unchecked.
+                   // fieldValid = false;
+              } else if (input.type === 'text' || input.type === 'number' || input.type === 'email' || input.tagName === 'TEXTAREA') {
+                 if (!input.value.trim()) {
+                     fieldValid = false;
+                 }
+                 if (input.type === 'email' && input.value.trim() && !/^\S+@\S+\.\S+$/.test(input.value)) {
+                     fieldValid = false;
+                     if(errorFeedbackEl) errorFeedbackEl.textContent = 'Please enter a valid email address.';
+                 }
+              }
+
+              if(input.classList.contains('other-input') && !input.classList.contains('hidden') && !input.value.trim()) {
+                  fieldValid = false;
+              }
+
+              if (!fieldValid) {
+                  isValid = false;
+                  input.classList.add('is-invalid');
+                  input.setAttribute('aria-invalid', 'true');
+                   const label = detailsForm.querySelector(`label[for="${input.id}"]`)?.textContent.replace(' *','').trim() || input.name;
+                  errors.push({ id: input.id, label: label });
+                  if(errorFeedbackEl && !input.value.trim() && input.tagName !== 'SELECT') { // General empty message
+                    errorFeedbackEl.textContent = "This field is required.";
+                  } else if (errorFeedbackEl && input.tagName === 'SELECT' && input.value === ''){
+                    errorFeedbackEl.textContent = "Please select an option.";
+                  }
+              }
+          });
+
+          if (!isValid) {
+              errors.forEach(err => {
+                  const li = document.createElement('li');
+                  const link = document.createElement('a');
+                  link.href = `#${err.id}`;
+                  link.textContent = err.label;
+                  link.onclick = (e) => {
+                      e.preventDefault();
+                      document.getElementById(err.id)?.focus();
+                  };
+                  li.appendChild(link);
+                  errorListUl.appendChild(li);
+              });
+              formErrorSummaryDiv.classList.remove('hidden');
+              formErrorSummaryDiv.focus();
+              detailsForm.classList.add('was-validated');
+          }
+          return isValid;
+      }
+
+
+      if (detailsForm) {
+          detailsForm.addEventListener('submit', (event) => {
+              event.preventDefault();
+              console.log('Submit handler started.');
+              submissionStatusDiv.innerHTML = '';
+              submissionStatusDiv.className = '';
+
+              if(submitBtn) submitBtn.disabled = true;
+              console.log('Calling validateForm()...');
+              const isValid = validateForm();
+              console.log(`validateForm() returned: isValid=${isValid}`);
+
+              if (!isValid) {
+                  console.log('Validation failed, stopping submission.');
+                  if(submitBtn) submitBtn.disabled = false;
+                  submissionStatusDiv.innerHTML = '<div class="alert alert-warning mt-2">Please review the errors above.</div>';
+                  return;
+              }
+
+              if(submitBtn) submitBtn.disabled = true;
+              if(submitSpinner) submitSpinner.classList.remove('hidden');
+
+              try {
+                  console.log('Validation passed, generating summary and showing step 3...');
+                  currentSummaryText = generateSummaryText(); // No need to pass formData, it will reconstruct
+                  summaryOutputDiv.textContent = currentSummaryText;
+                  const formattedSummaryTextarea = document.getElementById('formattedSummary');
+                  if(formattedSummaryTextarea) formattedSummaryTextarea.value = currentSummaryText;
+
+                  step2Section.classList.add('hidden');
+                  step3Section.classList.remove('hidden');
+                  updateStepper(3);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                  localStorage.removeItem(FORM_STORAGE_KEY);
+                  if(saveStatusSpan) saveStatusSpan.textContent = 'Draft cleared.';
+                  console.log("Form draft cleared, summary displayed.");
+                  if(submitSpinner) submitSpinner.classList.add('hidden');
+                  // Keep submit button disabled on step 3, or change its purpose
+              } catch (error) {
+                  console.error("Error generating summary or showing step 3:", error);
+                  submissionStatusDiv.innerHTML = `<div class="alert alert-danger mt-2">An error occurred: ${error.message}</div>`;
+                  if(submitSpinner) submitSpinner.classList.add('hidden');
+                  if(submitBtn) submitBtn.disabled = false;
+              }
+          });
+      }
+      function generateSummaryText() {
+          const lines = [];
+          lines.push('=== Dataprise Service Requirements Summary ===');
+          lines.push(`Generated: ${new Date().toLocaleString()}`);
+          lines.push('');
+
+          lines.push('--- Client and Contact Information ---');
+          if (getInputValue('clientName')) lines.push(`Client Organization Name: ${getInputValue('clientName')}`);
+          if (getInputValue('industry')) {
+            let industryVal = getInputValue('industry');
+            if (industryVal === 'Other') industryVal += `: ${getInputValue('industryOther')}`;
+            lines.push(`Industry: ${industryVal}`);
+          }
+          if (getInputValue('contactName')) lines.push(`Primary Contact Name: ${getInputValue('contactName')}`);
+          if (getInputValue('contactEmail')) lines.push(`Primary Contact Email: ${getInputValue('contactEmail')}`);
+          lines.push('');
+
+          const locationsDataContainer = document.getElementById('locationsContainer');
+          if (locationsDataContainer) {
+              const locationEntries = locationsDataContainer.querySelectorAll('.location-entry');
+              if (locationEntries.length > 0) {
+                  let validLocationsExist = false;
+                  const locationSummaryLines = [];
+                  let totalUsersAcrossLocations = 0;
+                  locationEntries.forEach((entry, index) => {
+                      const name = entry.querySelector('.location-name')?.value.trim() || '';
+                      const usersCount = parseInt(entry.querySelector('.location-users')?.value.trim(), 10) || 0;
+                      if (name || usersCount > 0) {
+                           locationSummaryLines.push(`  Location ${index + 1}: ${name || 'Unnamed Location'} (${usersCount} users)`);
+                           totalUsersAcrossLocations += usersCount;
+                           validLocationsExist = true;
+                      }
+                  });
+                  if (validLocationsExist) {
+                      lines.push('--- Locations and Users ---');
+                      lines.push(...locationSummaryLines);
+                      lines.push(`  Total Users (from locations): ${totalUsersAcrossLocations}`);
+                      lines.push('');
+                  }
+              }
+          }
+
+          const serviceObjects = getSelectedServices(); // This now returns objects or "Other: text"
+          const serviceLabels = serviceObjects.map(s => typeof s === 'object' ? s.label : s);
+          lines.push('--- Selected Services ---');
+          lines.push(serviceLabels.length ? serviceLabels.join(', ') : 'None selected');
+          lines.push('');
+
+          const serviceValues = serviceObjects.map(s => typeof s === 'object' ? s.value : (s.startsWith("Other:") ? "Other" : s));
+
+          // Dynamically generated sections
+          serviceValues.forEach(svcValue => {
+            const sectionId = svcValue.replace(/[^a-zA-Z0-9]/g, '') + 'AutoSectionWrapper';
+            const sectionElement = document.getElementById(sectionId);
+            if (sectionElement) {
+                lines.push(`--- Details for: ${serviceObjects.find(s => (typeof s === 'object' ? s.value : (s.startsWith("Other:") ? "Other" : s)) === svcValue)?.label || svcValue} ---`);
+                sectionElement.querySelectorAll('.data-capture').forEach(input => {
+                    const labelEl = detailsForm.querySelector(`label[for="${input.id}"]`);
+                    let label = labelEl ? labelEl.textContent.replace(' *','').trim() : input.name;
+                    if (input.closest('.checkbox-group') || input.closest('.radio-group')) {
+                        const legend = input.closest('fieldset')?.querySelector('legend');
+                        if (legend) label = `${legend.textContent.replace(' *','').trim()} - ${label}`;
+                    }
+
+
+                    if (input.type === 'checkbox') {
+                        if (input.checked) {
+                            if (input.id.endsWith('OtherCheck')) { // e.g. fmOS_OtherCheck
+                                const otherTextId = input.id.replace('Check', 'Text');
+                                lines.push(`${label}: Yes (Specified: ${getInputValue(otherTextId)})`);
+                            } else {
+                                lines.push(`${label}: ${input.value === 'on' || !input.value ? 'Checked' : input.value}`);
+                            }
+                        }
+                    } else if (input.type === 'radio') {
+                        if (input.checked) {
+                            lines.push(`${label}: ${input.value}`);
+                             if (input.value === 'Other' && input.id.endsWith('OtherRadio')) { // e.g. pcDepotDeployOtherRadio
+                                const otherTextId = input.id.replace('OtherRadio', 'OtherText');
+                                lines.push(`  Specified Other: ${getInputValue(otherTextId)}`);
+                            }
+                        }
+                    } else if (input.tagName === 'SELECT') {
+                        if (input.value) {
+                            let val = input.options[input.selectedIndex].text;
+                            if (input.value === 'Other' || input.value === 'Yes' || input.value === 'Yes - Other SaaS') { // Selects that trigger an "Other" text field
+                                const otherTextId = input.id + (input.id === 'secSIEMExists' ? 'Tool' : 'Other'); // secSIEMTool, bdrSaaSOther, [selectId]Other
+                                const otherTextVal = getInputValue(otherTextId);
+                                if (otherTextVal) val += ` (Specified: ${otherTextVal})`;
+                            }
+                            lines.push(`${label}: ${val}`);
+                        }
+                    } else if (input.value && !input.classList.contains('other-input')) { // Don't double-list other-inputs if already handled by select/checkbox
+                        lines.push(`${label}: ${input.value}`);
+                    }
+                });
+                 // Special handling for dynamic server lists within their sections
+                if (svcValue === 'Fully Managed IT') {
+                    const fmServers = document.querySelectorAll('#fmServersListContainer .fm-server-entry');
+                    if (fmServers.length > 0) {
+                        lines.push('  Server Inventory:');
+                        fmServers.forEach((entry, i) => {
+                            lines.push(`    Server ${i + 1}:`);
+                            lines.push(`      Name/Hostname: ${getValue(entry.querySelector('[id^=fmServerName_]'))}`);
+                            lines.push(`      Location: ${getValue(entry.querySelector('[id^=fmServerLocation_]'))}`);
+                            lines.push(`      Role(s): ${getValue(entry.querySelector('[id^=fmServerRole_]'))}`);
+                            lines.push(`      OS: ${getValue(entry.querySelector('[id^=fmServerOS_]'))}`);
+                            lines.push(`      Type: ${getValue(entry.querySelector('[id^=fmServerType_]'))}`);
+                            lines.push(`      Specs: ${getValue(entry.querySelector('[id^=fmServerSpecs_]'))}`);
+                        });
+                    } else { lines.push('  No servers listed for Fully Managed IT.'); }
+                }
+                if (svcValue === 'Managed Server') {
+                    const msServers = document.querySelectorAll('#msServersListContainer .fm-server-entry');
+                    if (msServers.length > 0) {
+                        lines.push('  Server Inventory:');
+                        msServers.forEach((entry, i) => {
+                            lines.push(`    Server ${i + 1}:`);
+                            lines.push(`      Name/Hostname: ${getValue(entry.querySelector('[id^=msServerName_]'))}`);
+                            const locSelect = entry.querySelector('[id^=msServerLocation_]');
+                            lines.push(`      Associated Location: ${locSelect && locSelect.value ? locSelect.options[locSelect.selectedIndex].text : 'Not Specified'}`);
+                            lines.push(`      Role(s): ${getValue(entry.querySelector('[id^=msServerRole_]'))}`);
+                            const osSelect = entry.querySelector('[id^=msServerOS_]:not([id$=Other])');
+                            let osText = osSelect && osSelect.value ? osSelect.options[osSelect.selectedIndex].text : 'Not Specified';
+                            if (osSelect && (osSelect.value === 'Other Linux' || osSelect.value === 'Other OS')) {
+                                const otherOSInput = entry.querySelector(`#${osSelect.id}Other`);
+                                if (otherOSInput && otherOSInput.value) osText += `: ${otherOSInput.value}`;
+                            }
+                            lines.push(`      Operating System: ${osText}`);
+                            lines.push(`      Type: ${getValue(entry.querySelector('[id^=msServerType_]'))}`);
+                            lines.push(`      Key Specs: ${getValue(entry.querySelector('[id^=msServerSpecs_]'))}`);
+                        });
+                    } else { lines.push('  No servers listed for Managed Server.'); }
+                }
+                lines.push(''); // Blank line after each service section
+            }
+        });
+
+
+          lines.push('--- Uploaded Document References ---');
+          let filesListed = false;
+          detailsForm.querySelectorAll('input[type="file"]').forEach(input => {
+              if (input.files && input.files.length > 0) {
+                  const label = detailsForm.querySelector(`label[for="${input.id}"]`)?.textContent || input.name;
+                  lines.push(`${label}: ${input.files[0].name}`);
+                  filesListed = true;
+              }
+          });
+          if (!filesListed) lines.push('No documents were indicated for upload.');
+
+          return lines.join('\n');
+      }
+
+
+      if (dlTextBtn) {
+          dlTextBtn.addEventListener('click', () => {
+              if (!currentSummaryText) return;
+              const blob = new Blob([currentSummaryText], { type: 'text/plain;charset=utf-8' });
+              const a = document.createElement('a');
+              a.href = URL.createObjectURL(blob);
+              a.download = `${getSafeFilenamePrefix()}_requirements_${new Date().toISOString().split('T')[0]}.txt`;
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(a.href);
+          });
+      }
+
+     if (dlPdfBtn) {
+         dlPdfBtn.addEventListener('click', () => {
+             if (!currentSummaryText) return;
+             try {
+                 const { jsPDF } = window.jspdf;
+                 const pdf = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+                 const margin = 15;
+                 const usableWidth = pdf.internal.pageSize.getWidth() - 2 * margin;
+                 pdf.setFont('helvetica', 'normal');
+                 pdf.setFontSize(10);
+
+                 const addFooters = () => {
+                     const pageCount = pdf.internal.getNumberOfPages();
+                     pdf.setFontSize(8);
+                      pdf.setTextColor(150);
+                     for (let i = 1; i <= pageCount; i++) {
+                         pdf.setPage(i);
+                         pdf.text(`Page ${i} of ${pageCount}`, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - margin/2, { align: 'center' });
+                     }
+                     pdf.setTextColor(0);
+                     pdf.setFontSize(10);
+                 };
+
+                 pdf.setFontSize(16);
+                 pdf.setFont('helvetica', 'bold');
+                 pdf.text("Dataprise Service Requirements Summary", pdf.internal.pageSize.getWidth() / 2, margin, { align: 'center' });
+                 pdf.setFontSize(10);
+                  pdf.setFont('helvetica', 'normal');
+                 let cursorY = margin + 10;
+
+                 const lines = pdf.splitTextToSize(currentSummaryText, usableWidth);
+                 lines.forEach(line => {
+                      if (cursorY + 5 > pdf.internal.pageSize.getHeight() - margin) {
+                          addFooters();
+                         pdf.addPage();
+                         cursorY = margin;
+                     }
+                     if (line.startsWith('---') || line.startsWith('===')) {
+                         pdf.setFont('helvetica', 'bold');
+                         pdf.text(line, margin, cursorY);
+                         pdf.setFont('helvetica', 'normal');
+                     } else {
+                        const indentMatch = line.match(/^(\s*)/);
+                        const indent = indentMatch ? indentMatch[0].length * 1.5 : 0; // Adjust multiplier as needed
+                        pdf.text(line.trimStart(), margin + indent, cursorY);
+                     }
+                     cursorY += 5;
+                 });
+                  addFooters();
+                 pdf.save(`${getSafeFilenamePrefix()}_requirements_${new Date().toISOString().split('T')[0]}.pdf`);
+             } catch (error) {
+                 console.error("Error generating PDF:", error);
+                 alert("Sorry, there was an error generating the PDF. Please try downloading the .txt file instead.");
+             }
+         });
+     }
+
+
+    const addLocationBtn = document.getElementById('addLocationBtn');
+    const locationsContainer = document.getElementById('locationsContainer');
+
+    function createLocationEntry() {
+        locationIndex++;
+        const entryDiv = document.createElement('div');
+        entryDiv.className = 'row g-3 mb-3 p-3 border rounded location-entry bg-white'; // Added bg-white for better visual separation
+        entryDiv.innerHTML = `
+            <div class="col-md-5">
+                <label class="form-label form-label-sm" for="locationName_${locationIndex}">Location Name/ID</label>
+                <input type="text" class="form-control form-control-sm location-name data-capture" id="locationName_${locationIndex}" name="locationName_${locationIndex}" placeholder="e.g., Main Office, Warehouse A">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label form-label-sm" for="locationUsers_${locationIndex}">Number of Users</label>
+                <input type="number" class="form-control form-control-sm location-users data-capture" id="locationUsers_${locationIndex}" name="locationUsers_${locationIndex}" min="0" placeholder="e.g., 50">
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="button" class="btn btn-danger btn-sm remove-location-btn w-100">
+                    <i class="bi bi-trash"></i> Remove
+                </button>
+            </div>
+        `;
+        locationsContainer.appendChild(entryDiv);
+        entryDiv.querySelectorAll('.data-capture').forEach(input => input.addEventListener('input', debouncedSave));
+        entryDiv.querySelector('.remove-location-btn').addEventListener('click', function() {
+            entryDiv.remove();
+            debouncedSave();
+        });
+        debouncedSave();
+    }
+
+    if (addLocationBtn && locationsContainer) {
+        addLocationBtn.addEventListener('click', createLocationEntry);
+        if (locationsContainer.children.length === 0) { // Add one by default if empty
+             createLocationEntry();
+        }
+    }
+
+    function addFmServerEntry(serverData = null) {
+      const container = document.getElementById('fmServersListContainer');
+      if (!container) return;
+      const currentFmServerIndex = fmServerIndex++; // Use current then increment
+
+      const entryDiv = document.createElement('div');
+      entryDiv.className = 'border rounded p-3 mb-3 fm-server-entry bg-white';
+      entryDiv.innerHTML = `
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label form-label-sm" for="fmServerName_${currentFmServerIndex}">Server Name/Hostname</label><input type="text" class="form-control form-control-sm data-capture" id="fmServerName_${currentFmServerIndex}" name="fmServerName_${currentFmServerIndex}" placeholder="e.g., DC01"></div>
+          <div class="col-md-6"><label class="form-label form-label-sm" for="fmServerLocation_${currentFmServerIndex}">Associated Location</label><input type="text" class="form-control form-control-sm data-capture" id="fmServerLocation_${currentFmServerIndex}" name="fmServerLocation_${currentFmServerIndex}" placeholder="e.g., Main Office"></div>
+          <div class="col-md-6"><label class="form-label form-label-sm" for="fmServerRole_${currentFmServerIndex}">Role(s)</label><input type="text" class="form-control form-control-sm data-capture" id="fmServerRole_${currentFmServerIndex}" name="fmServerRole_${currentFmServerIndex}" placeholder="e.g., DC, File, App"></div>
+          <div class="col-md-6"><label class="form-label form-label-sm" for="fmServerOS_${currentFmServerIndex}">Operating System</label><input type="text" class="form-control form-control-sm data-capture" id="fmServerOS_${currentFmServerIndex}" name="fmServerOS_${currentFmServerIndex}" placeholder="e.g., Windows Server 2019"></div>
+          <div class="col-md-6"><label class="form-label form-label-sm" for="fmServerType_${currentFmServerIndex}">Type (Physical/Virtual)</label><select class="form-select form-select-sm data-capture" id="fmServerType_${currentFmServerIndex}" name="fmServerType_${currentFmServerIndex}"><option value="" selected disabled>Select...</option><option value="Physical">Physical</option><option value="Virtual">Virtual</option></select></div>
+          <div class="col-md-6"><label class="form-label form-label-sm" for="fmServerSpecs_${currentFmServerIndex}">Key Specs</label><textarea class="form-control form-control-sm data-capture" id="fmServerSpecs_${currentFmServerIndex}" name="fmServerSpecs_${currentFmServerIndex}" rows="1" placeholder="CPU/RAM/Storage"></textarea></div>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-danger mt-2 fm-remove-server-btn"><i class="bi bi-trash"></i>Remove Server</button>
+      `;
+      container.appendChild(entryDiv);
+      entryDiv.querySelectorAll('.data-capture').forEach(input => input.addEventListener('input', debouncedSave));
+      entryDiv.querySelector('.fm-remove-server-btn').addEventListener('click', () => { entryDiv.remove(); debouncedSave(); });
+
+      if (serverData) {
+          document.getElementById(`fmServerName_${currentFmServerIndex}`).value = serverData.name || '';
+          document.getElementById(`fmServerLocation_${currentFmServerIndex}`).value = serverData.location || '';
+          document.getElementById(`fmServerRole_${currentFmServerIndex}`).value = serverData.role || '';
+          document.getElementById(`fmServerOS_${currentFmServerIndex}`).value = serverData.os || '';
+          document.getElementById(`fmServerType_${currentFmServerIndex}`).value = serverData.type || '';
+          document.getElementById(`fmServerSpecs_${currentFmServerIndex}`).value = serverData.specs || '';
+      }
+      debouncedSave();
+    }
+
+    function addMsServerEntry(serverData = {}) {
+        const container = document.getElementById('msServersListContainer');
+        if (!container) { console.error('msServersListContainer not found!'); return; }
+        const currentMsServerIndex = msServerIndex++;
+        const entryDiv = document.createElement('div');
+        entryDiv.className = 'row g-3 mb-3 p-3 border rounded bg-white fm-server-entry';
+        entryDiv.id = `msServerEntry_${currentMsServerIndex}`;
+        const locationOptions = getDynamicLocationOptions();
+
+        entryDiv.innerHTML = `
+            <div class="col-md-3"><label for="msServerName_${currentMsServerIndex}" class="form-label form-label-sm">Name/Hostname</label><input type="text" class="form-control form-control-sm data-capture" id="msServerName_${currentMsServerIndex}" name="msServerName_${currentMsServerIndex}" placeholder="e.g., SRV-WEB01"></div>
+            <div class="col-md-3"><label for="msServerLocation_${currentMsServerIndex}" class="form-label form-label-sm">Location</label><select class="form-select form-select-sm data-capture" id="msServerLocation_${currentMsServerIndex}" name="msServerLocation_${currentMsServerIndex}"><option value="">Select...</option>${locationOptions}</select></div>
+            <div class="col-md-3"><label for="msServerRole_${currentMsServerIndex}" class="form-label form-label-sm">Role(s)</label><input type="text" class="form-control form-control-sm data-capture" id="msServerRole_${currentMsServerIndex}" name="msServerRole_${currentMsServerIndex}" placeholder="e.g., Web, DB"></div>
+            <div class="col-md-3">
+                <label for="msServerOS_${currentMsServerIndex}" class="form-label form-label-sm">Operating System</label>
+                <select class="form-select form-select-sm data-capture has-other-option" id="msServerOS_${currentMsServerIndex}" name="msServerOS_${currentMsServerIndex}">
+                    <option value="">Select OS...</option><option value="Windows Server 2022">WS 2022</option><option value="Windows Server 2019">WS 2019</option><option value="Windows Server 2016">WS 2016</option><option value="Linux - Ubuntu">Ubuntu</option><option value="Linux - CentOS/RHEL">CentOS/RHEL</option><option value="Linux - Debian">Debian</option><option value="Other Linux">Other Linux</option><option value="Other OS">Other OS</option>
+                </select>
+                <input type="text" class="form-control form-control-sm mt-1 other-input hidden data-capture" id="msServerOS_${currentMsServerIndex}Other" name="msServerOS_OtherText_${currentMsServerIndex}" placeholder="Specify Other OS">
+            </div>
+            <div class="col-md-2"><label for="msServerType_${currentMsServerIndex}" class="form-label form-label-sm">Type</label><select class="form-select form-select-sm data-capture" id="msServerType_${currentMsServerIndex}" name="msServerType_${currentMsServerIndex}"><option value="">Select...</option><option value="Physical">Physical</option><option value="Virtual">Virtual</option></select></div>
+            <div class="col-md-3"><label for="msServerSpecs_${currentMsServerIndex}" class="form-label form-label-sm">Key Specs</label><input type="text" class="form-control form-control-sm data-capture" id="msServerSpecs_${currentMsServerIndex}" name="msServerSpecs_${currentMsServerIndex}" placeholder="CPU/RAM/Storage"></div>
+            <div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-sm btn-outline-danger ms-remove-server-btn w-100" title="Remove"><i class="bi bi-trash"></i></button></div>
+        `;
+        container.appendChild(entryDiv);
+
+        const osSelect = entryDiv.querySelector(`#msServerOS_${currentMsServerIndex}`);
+        if (osSelect) {
+            osSelect.addEventListener('change', () => toggleOtherInput(osSelect, `msServerOS_${currentMsServerIndex}Other`, ['Other Linux', 'Other OS']));
+        }
+        entryDiv.querySelectorAll('.data-capture').forEach(input => input.addEventListener('input', debouncedSave));
+        entryDiv.querySelector('.ms-remove-server-btn').addEventListener('click', () => { entryDiv.remove(); debouncedSave(); });
+
+        if (Object.keys(serverData).length > 0) {
+            document.getElementById(`msServerName_${currentMsServerIndex}`).value = serverData.name || '';
+            document.getElementById(`msServerLocation_${currentMsServerIndex}`).value = serverData.location || '';
+            document.getElementById(`msServerRole_${currentMsServerIndex}`).value = serverData.role || '';
+            const osSel = document.getElementById(`msServerOS_${currentMsServerIndex}`);
+            osSel.value = serverData.os || '';
+            if (serverData.os === 'Other Linux' || serverData.os === 'Other OS') {
+                const otherOsInput = document.getElementById(`msServerOS_${currentMsServerIndex}Other`);
+                otherOsInput.value = serverData.osOtherText || '';
+                otherOsInput.classList.remove('hidden');
+                otherOsInput.required = true;
+            }
+            document.getElementById(`msServerType_${currentMsServerIndex}`).value = serverData.type || '';
+            document.getElementById(`msServerSpecs_${currentMsServerIndex}`).value = serverData.specs || '';
+        }
+        debouncedSave();
+    }
+    // Initial call to set up the page based on URL or saved data
+    if (selectedParam) {
+        // Handled by the pre-population logic earlier
+    } else {
+        // For rep view, build dynamic sections based on potentially restored checkboxes
+        buildDynamicSections(); // Build based on current (possibly restored) selections
+        // restoreFormProgress was already called, which might have checked boxes and triggered build.
+        // If buildDynamicSections wasn't triggered by restoreFormProgress, this call ensures it.
+    }
+
+  }); // End DOMContentLoaded
+</script>
+</body>
+</html>
